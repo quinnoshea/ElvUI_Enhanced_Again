@@ -1,5 +1,8 @@
-local E, L, V, P, G = unpack(ElvUI); 
+local E, L, V, P, G = unpack(ElvUI);
 local PD = E:NewModule('PaperDoll', 'AceEvent-3.0', 'AceTimer-3.0');
+
+-- WoW 11.x API compatibility
+local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 
 local find = string.find
 local initialized = false

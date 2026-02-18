@@ -55,6 +55,17 @@ local partialIgnores = {
 
 local whiteList = {
 	"LibDBIcon",
+	-- Blizzard minimap buttons (WoW 11.x)
+	"MiniMapMailFrame",
+	"MiniMapTracking",
+	"MiniMapTrackingButton",
+	"MinimapZoomIn",
+	"MinimapZoomOut",
+	"MiniMapWorldMapButton",
+	"GameTimeFrame",
+	"MiniMapCraftingOrderFrame",
+	"ExpansionLandingPageMinimapButton",
+	"AddonCompartmentFrame",
 }
 
 local moveButtons = {}
@@ -336,8 +347,49 @@ function MB:SkinMinimapButtons()
 		_G['WIM3MinimapButton']:SetParent(Minimap)
 	end
 
+	-- Scan Minimap children
 	for i = 1, Minimap:GetNumChildren() do
 		self:SkinButton(select(i, Minimap:GetChildren()))
+	end
+
+	-- WoW 11.x: Also scan MinimapBackdrop and MinimapCluster for addon buttons
+	if MinimapBackdrop then
+		for i = 1, MinimapBackdrop:GetNumChildren() do
+			self:SkinButton(select(i, MinimapBackdrop:GetChildren()))
+		end
+	end
+
+	if MinimapCluster then
+		for i = 1, MinimapCluster:GetNumChildren() do
+			self:SkinButton(select(i, MinimapCluster:GetChildren()))
+		end
+	end
+
+	-- Also check for addon buttons registered with LibDBIcon
+	if LibDBIcon then
+		local buttons = LibDBIcon:GetButtonList()
+		for _, name in ipairs(buttons) do
+			local button = LibDBIcon:GetMinimapButton(name)
+			if button then
+				self:SkinButton(button)
+			end
+		end
+	end
+
+	-- Explicitly check for known Blizzard minimap buttons by global name
+	local blizzardButtons = {
+		"MiniMapMailFrame",
+		"MiniMapTracking",
+		"MiniMapTrackingButton",
+		"GameTimeFrame",
+		"MiniMapCraftingOrderFrame",
+		"ExpansionLandingPageMinimapButton",
+	}
+	for _, btnName in ipairs(blizzardButtons) do
+		local btn = _G[btnName]
+		if btn then
+			self:SkinButton(btn)
+		end
 	end
 
 	MB:UpdateLayout()
@@ -345,13 +397,15 @@ end
 
 function MB:StartSkinning()
 	MB:UnregisterEvent("ADDON_LOADED")
-
+	-- Scan multiple times to catch late-loading addon buttons
+	MB:ScheduleTimer("SkinMinimapButtons", 2)
 	MB:ScheduleTimer("SkinMinimapButtons", 6)
+	MB:ScheduleTimer("SkinMinimapButtons", 12)
 end
 
 function MB:CreateFrames()
 	minimapButtonBarAnchor = CreateFrame("Frame", "MinimapButtonBarAnchor", E.UIParent, 'BackdropTemplate')
-	minimapButtonBarAnchor:Point('BOTTOM', Minimap, 'BOTTOMRIGHT', 0, -E.mult -54)
+	minimapButtonBarAnchor:Point('TOP', Minimap, 'BOTTOM', 0, -5)
 	minimapButtonBarAnchor:Size(200, 32)
 	minimapButtonBarAnchor:SetFrameStrata("BACKGROUND")
 

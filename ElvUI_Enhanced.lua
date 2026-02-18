@@ -1,11 +1,13 @@
 --local E, L, V, P, G = unpack(select(2, ...));
-local E, L, V, P, G = unpack(ElvUI); 
+local E, L, V, P, G = unpack(ElvUI);
 local EP = LibStub("LibElvUIPlugin-1.0")
 
 local AddOnName, Engine = ...
 local EEL = E:NewModule("ElvuiEnhancedAgain", "AceHook-3.0", "AceEvent-3.0", "AceTimer-3.0");
 
-local IsAddOnLoaded = IsAddOnLoaded
+-- WoW 11.x API compatibility
+local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
+local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 
 -- Clear DB for testing>
 local testmode = false

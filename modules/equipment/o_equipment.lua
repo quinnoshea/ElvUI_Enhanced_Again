@@ -155,7 +155,7 @@ local function ConfigTable()
 								name = L["Enable"],
 								desc = L['Enable/Disable the battleground switch.'],
 								get = function(info) return E.private.eel.equipment.battleground.enable end,
-								set = function(info, value) E.private.eel.equipment.battleground.enable = value; EQ:ToggleBattleground() end
+								set = function(info, value) E.private.eel.equipment.battleground.enable = value end
 							},
 							spacer = {
 								order = 2,

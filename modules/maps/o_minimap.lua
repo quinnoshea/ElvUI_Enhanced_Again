@@ -184,12 +184,18 @@ local function ConfigTable()
             }
         }
     }
-    E.Options.args.maps.args.minimap.args.locationTextGroup.args.locationText.values = {
-		['MOUSEOVER'] = L['Minimap Mouseover'],
-		['SHOW'] = L['Always Display'],
-		['ABOVE'] = L['Above Minimap'],
-		['HIDE'] = L['Hide'],
-	}
+    -- Inject 'ABOVE' option into ElvUI's minimap location text dropdown
+    -- Path changed in ElvUI 15.x; safely traverse the options tree
+    local minimapArgs = E.Options.args.maps and E.Options.args.maps.args.minimap and E.Options.args.maps.args.minimap.args
+    if minimapArgs then
+        local locationGroup = minimapArgs.locationTextGroup or minimapArgs.locationText
+        if locationGroup then
+            local target = locationGroup.args and locationGroup.args.locationText or locationGroup
+            if target and target.values then
+                target.values['ABOVE'] = L['Above Minimap']
+            end
+        end
+    end
 end
 
 

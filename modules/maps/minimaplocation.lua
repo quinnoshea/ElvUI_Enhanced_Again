@@ -111,23 +111,28 @@ function ML:CreateFrame()
 
 	--local holder = _G['MMHolder']
 	local holder = M.MapHolder
-	panel:SetPoint('BOTTOMLEFT', holder, 'TOPLEFT', 0, 0)
-	panel:Size(holder:GetWidth() / mmScale, 22 / mmScale) 
-	panel:Show()
-	location:Width(panel:GetWidth() - 70)
-
-	local point, relativeTo, relativePoint, xOfs, yOfs = holder:GetPoint()
+	panel:SetParent(holder)
+	panel:ClearAllPoints()
+	panel:SetPoint('TOPLEFT', holder, 'TOPLEFT', 0, 0)
+	panel:SetPoint('TOPRIGHT', holder, 'TOPRIGHT', 0, 0)
+	panel:SetHeight(22 / mmScale)
+	panel:SetFrameStrata("MEDIUM")
+	panel:SetFrameLevel(50)
+	location:Width(holder:GetWidth() / mmScale - 70)
 
 	if E.db.general.minimap.locationText == 'ABOVE' then
-		holder:SetPoint(point, relativeTo, relativePoint, 0, -19)
-		holder:Height(holder:GetHeight() + 22)
 		panel:SetScript('OnUpdate', UpdateLocation)
 		panel:Show()
 	else
-		holder:SetPoint(point, relativeTo, relativePoint, 0, 0)
 		panel:SetScript('OnUpdate', nil)
 		panel:Hide()
-	end	
+	end
+
+	-- Re-scan minimap buttons after toggle to maintain skinning
+	local MB = E:GetModule('MinimapButtons', true)
+	if MB and E.minimapbuttons then
+		MB:ScheduleTimer("SkinMinimapButtons", 0.5)
+	end
 end
 
 local function StartHooks()

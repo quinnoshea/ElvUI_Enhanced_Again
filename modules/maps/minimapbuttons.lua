@@ -90,57 +90,49 @@ local function OnLeave(self)
 end
 
 function MB:SkinButton(frame)
-	if (not frame) or frame.isSkinned then return end
+	if not frame then return end
 	if (frame:GetObjectType() ~= "Button") or not frame:IsVisible() then return end
 
-	if not E.minimapbuttons.db.mbcalendar then
-		table.insert(ignoreButtons, "GameTimeFrame")
-	end
-
-	
-	
 	local name = frame:GetName()
 	if not name then return end
+
+	-- Check ignore lists first (applies to all buttons including whitelisted)
+	for i = 1, #ignoreButtons do
+		if name == ignoreButtons[i] then return end
+	end
+
 	local validIcon = false
-	
 	for i = 1, #whiteList do
 		if sub(name, 1, len(whiteList[i])) == whiteList[i] then validIcon = true break end
 	end
 
-	-- check if the button is a LibDBIcon and if it was hidden:
-	local libIconName = string.gsub(name,"LibDBIcon10_","")
+	-- Check if the button is a LibDBIcon and if it was hidden
+	local libIconName = string.gsub(name, "LibDBIcon10_", "")
 	if (not (libIconName == name)) and LibDBIcon then
-		--print(libIconName)
 		local libBtn = LibDBIcon:GetMinimapButton(libIconName)
-		--print(libBtn)
 		if libBtn and libBtn.db and libBtn.db.hide then
 			return
 		end
 	end
-	
+
 	if not validIcon then
-		for i = 1, #ignoreButtons do
-			if name == ignoreButtons[i] then return end
-		end
-		
 		for i = 1, #genericIgnores do
 			if sub(name, 1, len(genericIgnores[i])) == genericIgnores[i] then return end
 		end
-		
+
 		for i = 1, #partialIgnores do
 			if find(name, partialIgnores[i]) ~= nil then return end
 		end
 	end
-		
-	if not frame.isSkinned then
-		Mixin(frame, BackdropTemplateMixin)
-		frame:HookScript('OnEnter', OnEnter)
-		frame:HookScript('OnLeave', OnLeave)
-		frame:HookScript('OnClick', MB.DelayedUpdateLayout)
 
-		for i = 1, frame:GetNumRegions() do
-			local region = select(i, frame:GetRegions())
-			
+	-- For buttons already skinned (by ElvUI or another addon), just add to our layout
+	if frame.isSkinned then
+		-- Check if already in moveButtons
+		for i = 1, #moveButtons do
+			if moveButtons[i] == name then return end
+		end
+		-- Store original properties if not already stored
+		if not frame.original then
 			frame.original = {}
 			frame.original.Width, frame.original.Height = frame:GetSize()
 			frame.original.Point, frame.original.relativeTo, frame.original.relativePoint, frame.original.xOfs, frame.original.yOfs = frame:GetPoint()
@@ -148,45 +140,103 @@ function MB:SkinButton(frame)
 			frame.original.FrameStrata = frame:GetFrameStrata()
 			frame.original.FrameLevel = frame:GetFrameLevel()
 			frame.original.Scale = frame:GetScale()
-
 			if frame:HasScript("OnDragStart") then
 				frame.original.DragStart = frame:GetScript("OnDragStart")
 			end
 			if frame:HasScript("OnDragStop") then
 				frame.original.DragEnd = frame:GetScript("OnDragStop")
 			end
-
-			if (region:GetObjectType() == "Texture") then	
+		end
+		-- Reposition internal textures to fit within our button size
+		for i = 1, frame:GetNumRegions() do
+			local region = select(i, frame:GetRegions())
+			if region and region:GetObjectType() == "Texture" then
 				local texture = region.GetTextureFileID and region:GetTextureFileID()
 				if not texture then
 					texture = strlower(tostring(region:GetTexture()))
 				end
-
-				if (texture and (type(texture) == "number" and (texture == 136477 or texture == 136430 or texture == 136467 or texture == 136468 or texture == 130924))) then
+				-- Hide border/background textures, reposition icon textures
+				if texture and type(texture) ~= "number" and (texture:find("Border") or texture:find("Background") or texture:find("AlphaMask") or texture:find("highlight")) then
 					region:SetTexture(nil)
-				elseif (texture and (type(texture) ~= "number" and (texture:find("Border") or texture:find("Background") or texture:find("AlphaMask") or texture:find("highlight") or texture:find("interface/characterframe")))) then	
-					region:SetTexture(nil)
-				else
-
-					if name == "DBMMinimapButton" then frame:SetNormalTexture("Interface\\Icons\\INV_Helmet_87") end
-					if name == "SmartBuff_MiniMapButton" then frame:SetNormalTexture(select(3, GetSpellInfo(12051))) end
-					if name == "GRM_MinimapButton" then frame.GRM_MinimapButtonBorder:Hide() end
-
+				elseif texture and texture ~= "" and tostring(texture) ~= "0" then
 					region:ClearAllPoints()
-					region:Point("TOPLEFT", frame, "TOPLEFT", 2, -2)
-					region:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)
-					region:SetTexCoord( 0.1, 0.9, 0.1, 0.9 )
-					region:SetDrawLayer( "ARTWORK" )
-
-					region.SetPoint = function() return end
+					region:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
+					region:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)
+					region:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+					region:SetDrawLayer("ARTWORK")
 				end
 			end
 		end
-		frame:SetTemplate("Tranparent")
-
+		-- Also resize child frames (some buttons use child frames for icons)
+		for i = 1, frame:GetNumChildren() do
+			local child = select(i, frame:GetChildren())
+			if child and child ~= frame then
+				child:ClearAllPoints()
+				child:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
+				child:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)
+			end
+		end
 		tinsert(moveButtons, name)
-		frame.isSkinned = true
+		return
 	end
+
+	-- Full skinning for unskinned buttons
+	Mixin(frame, BackdropTemplateMixin)
+	frame:HookScript('OnEnter', OnEnter)
+	frame:HookScript('OnLeave', OnLeave)
+	frame:HookScript('OnClick', MB.DelayedUpdateLayout)
+
+	frame.original = {}
+	frame.original.Width, frame.original.Height = frame:GetSize()
+	frame.original.Point, frame.original.relativeTo, frame.original.relativePoint, frame.original.xOfs, frame.original.yOfs = frame:GetPoint()
+	frame.original.Parent = frame:GetParent()
+	frame.original.FrameStrata = frame:GetFrameStrata()
+	frame.original.FrameLevel = frame:GetFrameLevel()
+	frame.original.Scale = frame:GetScale()
+	if frame:HasScript("OnDragStart") then
+		frame.original.DragStart = frame:GetScript("OnDragStart")
+	end
+	if frame:HasScript("OnDragStop") then
+		frame.original.DragEnd = frame:GetScript("OnDragStop")
+	end
+
+	for i = 1, frame:GetNumRegions() do
+		local region = select(i, frame:GetRegions())
+
+		if (region:GetObjectType() == "Texture") then
+			local texture = region.GetTextureFileID and region:GetTextureFileID()
+			if not texture then
+				texture = strlower(tostring(region:GetTexture()))
+			end
+
+			if (texture and (type(texture) == "number" and (texture == 136477 or texture == 136430 or texture == 136467 or texture == 136468 or texture == 130924))) then
+				region:SetTexture(nil)
+			elseif (texture and (type(texture) ~= "number" and (texture:find("Border") or texture:find("Background") or texture:find("AlphaMask") or texture:find("highlight") or texture:find("interface/characterframe")))) then
+				region:SetTexture(nil)
+			else
+				if name == "DBMMinimapButton" then frame:SetNormalTexture("Interface\\Icons\\INV_Helmet_87") end
+				if name == "SmartBuff_MiniMapButton" then
+					local spellInfo = C_Spell and C_Spell.GetSpellInfo and C_Spell.GetSpellInfo(12051)
+					if spellInfo then
+						frame:SetNormalTexture(spellInfo.iconID)
+					end
+				end
+				if name == "GRM_MinimapButton" then frame.GRM_MinimapButtonBorder:Hide() end
+
+				region:ClearAllPoints()
+				region:Point("TOPLEFT", frame, "TOPLEFT", 2, -2)
+				region:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)
+				region:SetTexCoord( 0.1, 0.9, 0.1, 0.9 )
+				region:SetDrawLayer( "ARTWORK" )
+
+				region.SetPoint = function() return end
+			end
+		end
+	end
+	frame:SetTemplate("Transparent")
+
+	tinsert(moveButtons, name)
+	frame.isSkinned = true
 end
 
 function MB:DelayedUpdateLayout()
@@ -287,7 +337,12 @@ function MB:UpdateLayout()
 			frame:ClearAllPoints()
 			frame:SetFrameStrata("MEDIUM")
 			frame:SetFrameLevel(20)
-			frame:Size(E.minimapbuttons.db.buttonSize)
+			frame:SetSize(Size, Size)
+			if frame.SetFixedFrameSize then
+				frame:SetFixedFrameSize(false)
+			end
+			frame:SetScale(1)
+			frame:SetIgnoreParentScale(false)
 
 			if E.minimapbuttons.db.skinStyle == 'HORIZONTAL' then
 				anchor1 = direction and 'TOPLEFT' or 'TOPRIGHT'
@@ -428,7 +483,11 @@ function MB:Initialize()
 	if not EEL.initialized or not E.db.eel.minimap.minimapbar.enable then return end
 	E.minimapbuttons = MB
 	E.minimapbuttons.db = E.db.eel.minimap.minimapbar
-	
+
+	if not E.minimapbuttons.db.mbcalendar then
+		tinsert(ignoreButtons, "GameTimeFrame")
+	end
+
 	self:CreateFrames()
 end
 

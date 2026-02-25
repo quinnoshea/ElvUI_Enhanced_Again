@@ -1,9 +1,23 @@
-local E, L, V, P, G = unpack(ElvUI); 
+local E, L, V, P, G = unpack(ElvUI);
 local SO = E:NewModule('SetOverlay', 'AceHook-3.0', 'AceEvent-3.0', 'AceTimer-3.0')
 local B = E:GetModule('Bags')
 
 local byte, format = string.byte, string.format
 local tinsert, twipe = table.insert, table.wipe
+
+-- WoW 12.x compatibility: EquipmentManager_UnpackLocation was removed
+local EquipmentManager_UnpackLocation = EquipmentManager_UnpackLocation or function(location)
+	if location < 0 then
+		return false, false, false, true, bit.band(-location, 0xFFFF)
+	end
+	local player = bit.band(location, 0x1) ~= 0
+	local bank = bit.band(location, 0x2) ~= 0
+	local bags = bit.band(location, 0x4) ~= 0
+	local voidStorage = bit.band(location, 0x8) ~= 0
+	local slot = bit.rshift(bit.band(location, 0xFF00), 8)
+	local bag = bit.rshift(bit.band(location, 0xFF0000), 16)
+	return player, bank, bags, voidStorage, slot, bag
+end
 
 local updateTimer
 local containers = {}

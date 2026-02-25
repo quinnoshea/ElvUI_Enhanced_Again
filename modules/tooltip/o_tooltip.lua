@@ -16,7 +16,10 @@ P["eel"]["progression"] = {
         ["sepul"] = false,
         ["vault"] = false,
         ["abberrus"] = false,
-        ["amirdrassil"] = true,
+        ["amirdrassil"] = false,
+        ["nerubar"] = true,
+        ["undermine"] = true,
+        ["manaforge"] = true,
     },
 }
 
@@ -107,6 +110,20 @@ local function ConfigTable()
                             vault = { order = -37, type = "toggle", name = "Vault of the Incarnates" },
                             abberrus = { order = -36, type = "toggle", name = "Abberrus, the Shadowed Crucible" },
                             amirdrassil = { order = -35, type = "toggle", name = "Amirdrassil, the Dream's Hope" },
+                        }
+                    },
+                    tww = {
+                        order = 9,
+                        type = "group",
+                        name = "The War Within",
+                        guiInline = true,
+                        get = function(info) return E.db.eel.progression.raids[ info[#info] ] end,
+                        set = function(info, value) E.db.eel.progression.raids[ info[#info] ] = value end,
+                        disabled = function() return not E.db.eel.progression.enable end,
+                        args = {
+                            nerubar = { order = -34, type = "toggle", name = "Nerub-ar Palace" },
+                            undermine = { order = -33, type = "toggle", name = "Liberation of Undermine" },
+                            manaforge = { order = -32, type = "toggle", name = "Manaforge Omega" },
                         }
                     }
                 },

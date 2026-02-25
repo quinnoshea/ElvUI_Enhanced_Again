@@ -9,6 +9,9 @@ local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, Profi
 local PT = E:NewModule("ProgressTooltip", "AceHook-3.0", "AceEvent-3.0")
 local TT = E:GetModule('Tooltip')
 
+-- WoW 12.x API compatibility
+local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
+
 PT.levels = { 
 	"Mythic", 
 	"Heroic", 
@@ -29,6 +32,9 @@ PT.tiers["LONG"] = {
 		"Vault of the Incarnates",
 		"Abberrus, the Shadowed Crucible",
 		"Amirdrassil, the Dream's Hope",
+		"Nerub-ar Palace",
+		"Liberation of Undermine",
+		"Manaforge Omega",
 }
 PT.tiers["SHORT"] = {
 		"ULD",
@@ -42,6 +48,9 @@ PT.tiers["SHORT"] = {
 		"VotI",
 		"ASC",
 		"ADH",
+		"NaP",
+		"LoU",
+		"MfO",
 }
 
 PT.bosses = {
@@ -248,6 +257,57 @@ PT.bosses = {
 			},
 		},
 	},
+	{ -- Nerub-ar Palace
+		["option"] = "nerubar",
+		["statIDs"] = {
+			{ -- Mythic
+				40270, 40274, 40278, 40282, 40286, 40290, 40294, 40298
+			},
+			{ -- Heroic
+				40269, 40273, 40277, 40281, 40285, 40289, 40293, 40297
+			},
+			{ -- Normal
+				40268, 40272, 40276, 40280, 40284, 40288, 40292, 40296
+			},
+			{ -- LFR
+				40267, 40271, 40275, 40279, 40283, 40287, 40291, 40295
+			},
+		},
+	},
+	{ -- Liberation of Undermine
+		["option"] = "undermine",
+		["statIDs"] = {
+			{ -- Mythic
+				41302, 41306, 41310, 41314, 41318, 41322, 41326, 41330
+			},
+			{ -- Heroic
+				41301, 41305, 41309, 41313, 41317, 41321, 41325, 41329
+			},
+			{ -- Normal
+				41300, 41304, 41308, 41312, 41316, 41320, 41324, 41328
+			},
+			{ -- LFR
+				41299, 41303, 41307, 41311, 41315, 41319, 41323, 41327
+			},
+		},
+	},
+	{ -- Manaforge Omega
+		["option"] = "manaforge",
+		["statIDs"] = {
+			{ -- Mythic
+				41636, 41640, 41644, 41648, 41652, 41656, 41660, 41664
+			},
+			{ -- Heroic
+				41635, 41639, 41643, 41647, 41651, 41655, 41659, 41663
+			},
+			{ -- Normal
+				41634, 41638, 41642, 41646, 41650, 41654, 41658, 41662
+			},
+			{ -- LFR
+				41633, 41637, 41641, 41645, 41649, 41653, 41657, 41661
+			},
+		},
+	},
 }
 
 PT.progressCache = {}
@@ -339,7 +399,8 @@ local function OnInspectInfo(self, tt, unit, numTries, r, g, b)
 	if not E.db.eel.progression.enable then return end
 	if not (unit and CanInspect(unit)) then return end
 	local level = UnitLevel(unit)
-	if not level or level < MAX_PLAYER_LEVEL then return end
+	local maxLevel = MAX_PLAYER_LEVEL or GetMaxLevelForPlayerExpansion and GetMaxLevelForPlayerExpansion() or E.expansionLevelMax or 80
+	if not level or level < maxLevel then return end
 	
 	local guid = UnitGUID(unit)
 	if not PT.progressCache[guid] or (GetTime() - PT.progressCache[guid].timer) > 600 then

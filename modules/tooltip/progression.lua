@@ -316,7 +316,7 @@ PT.highest = 0
 
 function PT:GetProgression(guid)
 	local kills, complete, pos = 0, false, 0
-	local statFunc = guid == playerGUID and GetStatistic or GetComparisonStatistic
+	local statFunc = guid == PT.playerGUID and GetStatistic or GetComparisonStatistic
 
 	for tier = 1, #PT.tiers["LONG"] do
 		local option = PT.bosses[tier].option

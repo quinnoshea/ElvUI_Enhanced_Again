@@ -1,4 +1,4 @@
-[![Package and release](https://github.com/nickbock/ElvUI_Enhanced_Again/actions/workflows/main.yml/badge.svg)](https://github.com/nickbock/ElvUI_Enhanced_Again/actions/workflows/main.yml)
+[![Package and release](https://github.com/quinnoshea/ElvUI_Enhanced_Again/actions/workflows/main.yml/badge.svg)](https://github.com/quinnoshea/ElvUI_Enhanced_Again/actions/workflows/main.yml)
 
 # Important Notice
 ### **The latest version is a rework of the add-on, not all features will be ported. If you move from v3 to v4, old settings will be lost!**
@@ -8,9 +8,9 @@ You need atleast ElvUI version 12 or higher for the add-on to work.
 # General Information
 This is a continuation of ElvUI Enhanced and a more lightweight version. Only essential features are added and features that ElvUI can do it self are removed. If you miss specific features from the old v3 version, please let me know and I will consider adding them.
 
-If you find any bugs or features that are not working please let me know by creating a ticket: [https://github.com/nickbock/ElvUI_Enhanced_Again/issues](https://github.com/nickbock/ElvUI_Enhanced_Again/issues "")
+If you find any bugs or features that are not working please let me know by creating a ticket: [https://github.com/quinnoshea/ElvUI_Enhanced_Again/issues](https://github.com/quinnoshea/ElvUI_Enhanced_Again/issues "")
 
-If you want to contribute you can find the source on github: [https://github.com/nickbock/ElvUI_Enhanced_Again](https://github.com/nickbock/ElvUI_Enhanced_Again "")
+If you want to contribute you can find the source on github: [https://github.com/quinnoshea/ElvUI_Enhanced_Again](https://github.com/quinnoshea/ElvUI_Enhanced_Again "")
 
 # Whats New
 - Moved all the setting to own settings section. This way it more easier to find settings and to change them how you want.
@@ -48,7 +48,7 @@ Please Note: This add-on will not function without ElvUI installed. You can down
 - Show the range of a target in a datatext
 
 # Removed Features
-You can make a request for only of the old features on: [https://github.com/nickbock/ElvUI_Enhanced_Again](https://github.com/nickbock/ElvUI_Enhanced_Again ""). 
+You can make a request for only of the old features on: [https://github.com/quinnoshea/ElvUI_Enhanced_Again](https://github.com/quinnoshea/ElvUI_Enhanced_Again ""). 
 If enough people want it, I will consider adding the feature.
 
 ### Mini map

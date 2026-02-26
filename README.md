@@ -1,6 +1,6 @@
 [![Package and release](https://github.com/quinnoshea/ElvUI_Enhanced_Again/actions/workflows/main.yml/badge.svg)](https://github.com/quinnoshea/ElvUI_Enhanced_Again/actions/workflows/main.yml)
 
-# ElvUI Enhanced Again
+# ElvUI Enhanced (Yet) Again
 
 A lightweight plugin for [ElvUI](http://www.tukui.org) that adds essential quality-of-life features without duplicating what ElvUI already does well.
 
@@ -8,10 +8,6 @@ A lightweight plugin for [ElvUI](http://www.tukui.org) that adds essential quali
 
 **Current Version:** 4.3.0
 **Supported WoW Versions:** Retail (The War Within / Midnight), Wrath Classic
-
-## Notice
-
-The latest version (v4) is a rework of the add-on. Not all legacy features have been ported. Moving from v3 to v4 will reset your settings.
 
 ## Installation
 

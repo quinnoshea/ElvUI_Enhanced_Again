@@ -1,0 +1,25 @@
+name: Retail Push Checks
+
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Lua 5.1
+        uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: "5.1"
+
+      - name: Lua syntax check (all files)
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            lua -e "assert(loadfile(arg[1]))" "$file"
+          done < <(find . -type f -name '*.lua' -not -path './.git/*' -print0)

@@ -153,7 +153,9 @@ function MB:SkinButton(frame)
 					texture = strlower(tostring(region:GetTexture()))
 				end
 				-- Hide border/background textures, reposition icon textures
-				if texture and type(texture) ~= "number" and (texture:find("Border") or texture:find("Background") or texture:find("AlphaMask") or texture:find("highlight")) then
+				if texture and type(texture) == "number" and (texture == 136477 or texture == 136430 or texture == 136467 or texture == 136468 or texture == 130924) then
+					region:SetTexture(nil)
+				elseif texture and type(texture) ~= "number" and (texture:find("Border") or texture:find("Background") or texture:find("AlphaMask") or texture:find("highlight") or texture:find("interface/characterframe")) then
 					region:SetTexture(nil)
 				elseif texture and texture ~= "" and tostring(texture) ~= "0" then
 					region:ClearAllPoints()
@@ -162,15 +164,6 @@ function MB:SkinButton(frame)
 					region:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 					region:SetDrawLayer("ARTWORK")
 				end
-			end
-		end
-		-- Also resize child frames (some buttons use child frames for icons)
-		for i = 1, frame:GetNumChildren() do
-			local child = select(i, frame:GetChildren())
-			if child and child ~= frame then
-				child:ClearAllPoints()
-				child:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
-				child:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)
 			end
 		end
 		tinsert(moveButtons, name)

@@ -39,8 +39,9 @@ end
 
 function RM:UpdateWorldMarkersAndTooltips()
 	for i = 1, 9 do
-		local target, worldmarker = layouts[i].RT, layouts[i].WM
-		local button = self.frame.buttons[i]
+		local index = i
+		local target, worldmarker = layouts[index].RT, layouts[index].WM
+		local button = self.frame.buttons[index]
 
 		if target and not worldmarker then
 			-- tooltip
@@ -48,7 +49,7 @@ function RM:UpdateWorldMarkersAndTooltips()
 				self:SetBackdropBorderColor(.7, .7, 0)
 				GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
 				GameTooltip:SetText(L["Raid Markers"])
-				GameTooltip:AddLine(i == 9 and L["Click to clear the mark."] or L["Click to mark the target."], 1, 1, 1)
+				GameTooltip:AddLine(index == 9 and L["Click to clear the mark."] or L["Click to mark the target."], 1, 1, 1)
 				GameTooltip:Show()
 			end)
 		else
@@ -62,7 +63,7 @@ function RM:UpdateWorldMarkersAndTooltips()
 				self:SetBackdropBorderColor(.7, .7, 0)
 				GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
 				GameTooltip:SetText(L["Raid Markers"])
-				GameTooltip:AddLine(i == 9 and ("%s\n%s"):format(L["Click to clear the mark."], (L["%sClick to remove all worldmarkers."]):format(button.modifier:upper()))
+				GameTooltip:AddLine(index == 9 and ("%s\n%s"):format(L["Click to clear the mark."], (L["%sClick to remove all worldmarkers."]):format(button.modifier:upper()))
 					or ("%s\n%s"):format(L["Click to mark the target."], (L["%sClick to place a worldmarker."]):format(button.modifier:upper())), 1, 1, 1)
 				GameTooltip:Show()
 			end)			

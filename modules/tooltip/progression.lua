@@ -372,14 +372,18 @@ function PT:SetProgressionInfo(guid, tt)
 		if updated == 1 then return end
 		-- add progression tooltip line
 		if PT.highest > 0 then tt:AddLine(" ") end
-		for tier = 1, #PT.tiers["LONG"] do
-			local option = PT.bosses[tier].option
-			if E.db.eel.progression.raids[option] then
-				for level = 1, 4 do
-					tt:AddDoubleLine(PT.progressCache[guid].header[tier][level], PT.progressCache[guid].info[tier][level], nil, nil, nil, 1, 1, 1)
+			for tier = 1, #PT.tiers["LONG"] do
+				local option = PT.bosses[tier].option
+				if E.db.eel.progression.raids[option] then
+					for level = 1, 4 do
+						local header = PT.progressCache[guid].header[tier][level]
+						local info = PT.progressCache[guid].info[tier][level]
+						if header and info then
+							tt:AddDoubleLine(header, info, nil, nil, nil, 1, 1, 1)
+						end
+					end
 				end
 			end
-		end
 	end
 end
 

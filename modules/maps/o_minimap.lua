@@ -120,7 +120,7 @@ local function ConfigTable()
                         type = 'select',
                         name = L['Layout Direction'],
                         desc = L['Normal is right to left or top to bottom, or select reversed to switch directions.'],
-                        disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinstyle == 'NOANCHOR' end,
+                        disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinStyle == 'NOANCHOR' end,
                         values = {
                             ['NORMAL'] = L['Normal'],
                             ['REVERSED'] = L['Reversed'],
@@ -132,7 +132,7 @@ local function ConfigTable()
                         name = L['Button Size'],
                         desc = L['The size of the minimap buttons.'],
                         min = 16, max = 40, step = 1,
-                        disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinstyle == 'NOANCHOR' end,
+                        disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinStyle == 'NOANCHOR' end,
                     },
                     buttonsPerRow = {
                         order = 5,
@@ -140,13 +140,13 @@ local function ConfigTable()
                         name = L['Buttons per row'],
                         desc = L['The max number of buttons when a new row starts.'],
                         min = 2, max = 20, step = 1,
-                        disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinstyle == 'NOANCHOR' end,
+                        disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinStyle == 'NOANCHOR' end,
                     },
                     backdrop = {
                         type = 'toggle',
                         order = 6,
                         name = L["Backdrop"],
-                        disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinstyle == 'NOANCHOR' end,
+                        disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinStyle == 'NOANCHOR' end,
                     },			
                     mouseover = {
                         order = 7,
@@ -154,7 +154,7 @@ local function ConfigTable()
                         desc = L['The frame is not shown unless you mouse over the frame.'],
                         type = "toggle",
                         set = function(info, value) E.db.eel.minimap.minimapbar.mouseover = value; MB:ChangeMouseOverSetting() end,
-                        disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinstyle == 'NOANCHOR' end,
+                        disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinStyle == 'NOANCHOR' end,
                     },
                     mmbuttons = {
                         order = 8,
@@ -167,7 +167,7 @@ local function ConfigTable()
                                 name = GARRISON_LOCATION_TOOLTIP,
                                 desc = L['TOGGLESKIN_DESC'],
                                 type = "toggle",
-                                disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinstyle == 'NOANCHOR' end,
+                                disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinStyle == 'NOANCHOR' end,
                                 set = function(info, value) E.db.eel.minimap.minimapbar.mbgarrison = value; E:StaticPopup_Show("CONFIG_RL") end,
                             },
                             mbcalendar = {
@@ -175,7 +175,7 @@ local function ConfigTable()
                                 name = L['Calendar'],
                                 desc = L['TOGGLESKIN_DESC'],
                                 type = "toggle",
-                                disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinstyle == 'NOANCHOR' end,
+                                disabled = function() return not E.db.eel.minimap.minimapbar.enable or E.db.eel.minimap.minimapbar.skinStyle == 'NOANCHOR' end,
                                 set = function(info, value) E.db.eel.minimap.minimapbar.mbcalendar = value; E:StaticPopup_Show("CONFIG_RL") end,
                             }
                         }

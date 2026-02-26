@@ -21,5 +21,5 @@ jobs:
         run: |
           set -euo pipefail
           while IFS= read -r -d '' file; do
-            lua -e "assert(loadfile(arg[1]))" "$file"
+            LUA_FILE="$file" lua -e 'assert(loadfile(os.getenv("LUA_FILE")))'
           done < <(find . -type f -name '*.lua' -not -path './.git/*' -print0)

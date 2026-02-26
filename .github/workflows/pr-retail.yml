@@ -57,7 +57,7 @@ jobs:
           fi
 
           while IFS= read -r file; do
-            lua -e "assert(loadfile(arg[1]))" "$file"
+            LUA_FILE="$file" lua -e 'assert(loadfile(os.getenv("LUA_FILE")))'
           done < /tmp/changed_lua_files.txt
 
       - name: Retail API guard

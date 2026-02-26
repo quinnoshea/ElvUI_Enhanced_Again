@@ -1,0 +1,44 @@
+name: Retail Interface Watcher
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-interface:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check latest retail interface
+        id: interface
+        run: ./.github/scripts/update-retail-interface.sh
+
+      - name: Create or update PR
+        if: steps.interface.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/retail-interface-bump
+          delete-branch: false
+          commit-message: "chore(toc): bump retail interface to ${{ steps.interface.outputs.new_interface }}"
+          title: "chore(toc): bump retail interface to ${{ steps.interface.outputs.new_interface }}"
+          body: |
+            ## Summary
+            Automated retail TOC interface bump.
+
+            ## Details
+            - Source version: `${{ steps.interface.outputs.version_raw }}`
+            - Previous interface: `${{ steps.interface.outputs.current_interface }}`
+            - New interface: `${{ steps.interface.outputs.new_interface }}`
+            - Updated file: `ElvUI_Enhanced.toc`
+
+            This PR was created by the Retail Interface Watcher workflow.
+          labels: |
+            automation
+            toc

@@ -56,9 +56,8 @@ jobs:
             exit 0
           fi
 
-          while IFS= read -r file; do
-            LUA_FILE="$file" lua -e 'assert(loadfile(os.getenv("LUA_FILE")))'
-          done < /tmp/changed_lua_files.txt
+          mapfile -t lua_files < /tmp/changed_lua_files.txt
+          ./.github/scripts/lua-syntax-check.sh "${lua_files[@]}"
 
       - name: Retail API guard
         run: |

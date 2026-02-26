@@ -1,6 +1,16 @@
 local E, L, V, P, G = unpack(ElvUI); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB, Localize Underscore
 local M = E:NewModule('MiscEnh', 'AceHook-3.0', 'AceEvent-3.0');
 
+-- WoW 12.x API compatibility
+local function GetSpellName(spellID)
+	if C_Spell and C_Spell.GetSpellInfo then
+		local info = C_Spell.GetSpellInfo(spellID)
+		return info and info.name
+	elseif GetSpellInfo then
+		return GetSpellInfo(spellID)
+	end
+end
+
 E.MiscEnh = M;
 
 function M:LoadAutoRelease()
@@ -11,17 +21,8 @@ function M:LoadAutoRelease()
 	autoreleasepvp:SetScript("OnEvent", function(self, event)
 		local inInstance, instanceType = IsInInstance()
 		if (inInstance and (instanceType == "pvp")) then
-			local soulstone = GetSpellInfo(20707)
+			local soulstone = GetSpellName(20707)
 			if ((E.myclass ~= "SHAMAN") and not (soulstone and AuraUtil.FindAuraByName(soulstone, "player"))) then
-				RepopMe()
-			end
-		end
-
-		-- auto resurrection for world PvP area...when active
-		for index = 1, GetNumWorldPVPAreas() do
-			local pvpID, localizedName, isActive, canQueue, startTime, canEnter = GetWorldPVPAreaInfo(index)
-			
-			if (GetRealZoneText() == localizedName and isActive) then
 				RepopMe()
 			end
 		end

@@ -10,10 +10,7 @@ function UF:Onlyhealth_Power(frame)
 	if not power then return end
     
     local role = UnitGroupRolesAssigned(frame.unit)
-    print(role)
-    if role == "HEALER" then 
-        print("healer sub")    
-        return 
-    end   
-    print("hide power")
+    if role == "HEALER" then
+        return
+    end
 end

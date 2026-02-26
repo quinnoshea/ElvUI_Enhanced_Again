@@ -55,13 +55,10 @@ local partialIgnores = {
 
 local whiteList = {
 	"LibDBIcon",
-	-- Blizzard minimap buttons (WoW 11.x)
+	-- Blizzard minimap buttons
 	"MiniMapMailFrame",
 	"MiniMapTracking",
 	"MiniMapTrackingButton",
-	"MinimapZoomIn",
-	"MinimapZoomOut",
-	"MiniMapWorldMapButton",
 	"GameTimeFrame",
 	"MiniMapCraftingOrderFrame",
 	"ExpansionLandingPageMinimapButton",
@@ -330,10 +327,9 @@ function MB:UpdateLayout()
 		else
 			frame:SetParent(minimapButtonBar)
 			frame:SetMovable(false)
-			frame:SetIgnoreParentScale(false)
 			frame:SetScript("OnDragStart", nil)
 			frame:SetScript("OnDragStop", nil)
-			
+
 			frame:ClearAllPoints()
 			frame:SetFrameStrata("MEDIUM")
 			frame:SetFrameLevel(20)
@@ -431,31 +427,14 @@ function MB:SkinMinimapButtons()
 		end
 	end
 
-	-- Explicitly check for known Blizzard minimap buttons by global name
-	local blizzardButtons = {
-		"MiniMapMailFrame",
-		"MiniMapTracking",
-		"MiniMapTrackingButton",
-		"GameTimeFrame",
-		"MiniMapCraftingOrderFrame",
-		"ExpansionLandingPageMinimapButton",
-	}
-	for _, btnName in ipairs(blizzardButtons) do
-		local btn = _G[btnName]
-		if btn then
-			self:SkinButton(btn)
-		end
-	end
-
 	MB:UpdateLayout()
 end
 
 function MB:StartSkinning()
 	MB:UnregisterEvent("ADDON_LOADED")
-	-- Scan multiple times to catch late-loading addon buttons
+	-- Scan again to catch late-loading addon buttons
 	MB:ScheduleTimer("SkinMinimapButtons", 2)
 	MB:ScheduleTimer("SkinMinimapButtons", 6)
-	MB:ScheduleTimer("SkinMinimapButtons", 12)
 end
 
 function MB:CreateFrames()

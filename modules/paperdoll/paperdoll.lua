@@ -4,7 +4,6 @@ local PD = E:NewModule('PaperDoll', 'AceEvent-3.0', 'AceTimer-3.0');
 -- WoW 11.x API compatibility
 local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 
-local find = string.find
 local initialized = false
 local originalInspectFrameUpdateTabs
 local updateTimer
@@ -34,19 +33,6 @@ local levelColors = {
   [2] = "|cffffff88",
 }
 
--- From http://www.wowhead.com/items?filter=qu=7;sl=16:18:5:8:11:10:1:23:7:21:2:22:13:24:15:28:14:4:3:19:25:12:17:6:9;minle=1;maxle=1;cr=166;crs=3;crv=0
-local heirlooms = {
-  [80] = {
-    44102,42944,44096,42943,42950,48677,42946,42948,42947,42992,
-    50255,44103,44107,44095,44098,44097,44105,42951,48683,48685,
-    42949,48687,42984,44100,44101,44092,48718,44091,42952,48689,
-    44099,42991,42985,48691,44094,44093,42945,48716
-  },
-  ["90h"] = {105689,105683,105686,105687,105688,105685,105690,105691,105684,105692,105693},
-  ["90n"] = {104399,104400,104401,104402,104403,104404,104405,104406,104407,104408,104409},
-  ["90f"] = {105675,105670,105672,105671,105674,105673,105676,105677,105678,105679,105680},
-
-}
 
 function PD:UpdatePaperDoll(inspect)
   if not initialized then return end
@@ -155,70 +141,16 @@ end
 
 function PD:GetItemLevel(unit, slot)
   local itemLink = GetInventoryItemLink(unit, slot)
-  local rarity, itemLevel = select(3, GetItemInfo(itemLink))
-  if rarity == 7 then -- heirloom adjust
-    itemLevel = self:HeirLoomLevel(unit, itemLink)
-  end
-  itemlevel = GetSlotItemLevel(unit, slot)
+  local itemlevel = GetSlotItemLevel(unit, slot)
   if itemlevel then
     return itemlevel
   else
-    itemLevel = GetRealItemLevel(itemLink)
-    itemLevel = tonumber(itemLevel)
-    return itemLevel
-  end
-end
-
-
-function PD:HeirLoomLevel(unit, itemLink)
-  local level = UnitLevel(unit)
-
-  if level > 85 then
-    local _, _, _, _, itemId = find(itemLink, "|?c?f?f?(%x*)|?H?([^:]*):?(%d+):?(%d*):?(%d*):?(%d*):?(%d*):?(%d*):?(%-?%d*):?(%-?%d*):?(%d*):?(%d*)|?h?%[?([^%[%]]*)%]?|?h?|?r?")
-    --print(itemId)
-    itemId = tonumber(itemId);
-    for _, id in pairs(heirlooms["90h"]) do
-      if id == itemId then
-        level = 582
-        break
-      end
-    end
-    for _, id in pairs(heirlooms["90n"]) do
-      if id == itemId then
-        level = 569
-        break
-      end
-    end
-    for _, id in pairs(heirlooms["90f"]) do
-      if id == itemId then
-        level = 548
-        break
-      end
-    end
-
-  elseif level > 80 then
-    local _, _, _, _, itemId = find(itemLink, "|?c?f?f?(%x*)|?H?([^:]*):?(%d+):?(%d*):?(%d*):?(%d*):?(%d*):?(%d*):?(%-?%d*):?(%-?%d*):?(%d*):?(%d*)|?h?%[?([^%[%]]*)%]?|?h?|?r?")
-    --print(itemId)
-    itemId = tonumber(itemId);
-    for _, id in pairs(heirlooms[80]) do
-      if id == itemId then
-        level = 80
-        break
-      end
-    end
-  end
-
-  if level > 85 then return level
-  elseif level > 80 then -- CAT heirloom scaling kicks in at 81
-    return (( level - 81) * 12.2) + 272;
-  elseif level > 67 then -- WLK heirloom scaling kicks in at 68
-    return (( level - 68) * 6) + 130;
-  elseif level > 59 then -- TBC heirloom scaling kicks in at 60
-    return (( level - 60) * 3) + 85;
-  else
+    local level = tonumber(GetRealItemLevel(itemLink))
     return level
   end
 end
+
+
 
 function PD:InspectFrame_UpdateTabsComplete()
   originalInspectFrameUpdateTabs()

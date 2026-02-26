@@ -57,23 +57,12 @@ function EQ:EquipmentSwapFinished()
 	end
 end
 
---[[ function EQ:ToggleBattleground()
-	if self.db.battleground.enable then
-		self:RegisterEvent("PLAYER_ENTERING_WORLD", "CheckForGearChange")
-	end
-	if not self.db.battleground.enable then
-		self:UnregisterEvent("PLAYER_ENTERING_WORLD", "CheckForGearChange")
-	end
-end ]]
-
-
 function EQ:Initialize()
 	E.equipment = self
 	self.db = E.private.eel.equipment;
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "CheckForGearChange")
 	self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", "CheckForGearChange")
 	self:RegisterEvent("EQUIPMENT_SWAP_FINISHED", "EquipmentSwapFinished")
-	-- EQ:ToggleBattleground()
 end
 
 E:RegisterModule(EQ:GetName())

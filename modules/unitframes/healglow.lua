@@ -6,6 +6,16 @@ local GetNumGroupMembers, GetNumSubgroupMembers = GetNumGroupMembers, GetNumSubg
 local IsInRaid, IsInGroup, GetTime = IsInRaid, IsInGroup, GetTime
 local tinsert, twipe = table.insert, table.wipe
 
+-- WoW 12.x API compatibility
+local function GetSpellName(spellID)
+	if C_Spell and C_Spell.GetSpellInfo then
+		local info = C_Spell.GetSpellInfo(spellID)
+		return info and info.name, nil, info and info.iconID
+	elseif GetSpellInfo then
+		return GetSpellInfo(spellID)
+	end
+end
+
 local playerId
 
 local spells = {}
@@ -66,7 +76,7 @@ function HG:SetupVariables()
 		-- Shaman
 		1064,   -- Chain Heal	
 	}) do
-		local name, _, icon = GetSpellInfo(spellID)
+		local name, _, icon = GetSpellName(spellID)
 		if name then
 			spells[name] = { spellID, icon }
 		end

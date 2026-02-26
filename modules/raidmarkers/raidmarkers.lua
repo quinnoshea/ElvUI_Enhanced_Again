@@ -48,7 +48,7 @@ function RM:UpdateWorldMarkersAndTooltips()
 				self:SetBackdropBorderColor(.7, .7, 0)
 				GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
 				GameTooltip:SetText(L["Raid Markers"])
-				GameTooltip:AddLine(k == 9 and L["Click to clear the mark."] or L["Click to mark the target."], 1, 1, 1)
+				GameTooltip:AddLine(i == 9 and L["Click to clear the mark."] or L["Click to mark the target."], 1, 1, 1)
 				GameTooltip:Show()
 			end)
 		else
@@ -153,7 +153,6 @@ function RM:Initialize()
 
 	E:CreateMover(self.frame, "RaidMarkerBarAnchor", L['Raid Marker Bar'], nil, nil, nil, "ALL,ACTIONBARS,ELVUIEHANCED")
 	
-	--self:RegisterEvent("GROUP_ROSTER_UPDATE", "ToggleSettings")
 	self:CreateButtons()
 	self:ToggleSettings()
 end

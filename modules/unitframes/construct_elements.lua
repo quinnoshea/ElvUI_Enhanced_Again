@@ -24,7 +24,6 @@ function UF:Construct_Unit_GPS(frame, unit)
 	UF:Configure_FontString(gps.Text)
 
 	gps.unit = unit
-	--gps:Hide()
 	gps:Show()
 	
 	frame.gps = gps
@@ -62,14 +61,6 @@ function UF:AddShouldIAttackIcon(frame)
 	tag:RegisterEvent("UNIT_COMBAT")
 	
 	tag:SetScript("OnEvent", function()
-		--if UnitIsTapped("target") and not (UnitIsTappedByPlayer("target") or UnitIsTappedByAllThreatList("target")) then
-			--tag:Hide
-		--end
-		--if UnitCanAttack("player", "target") and (not UnitIsTapped("target") or UnitIsTappedByAllThreatList("target")) then
-		--	tag:Show()	
-		--else
-		--	tag:Hide()
-		--end
 		if tag.db.enable and not UnitIsDeadOrGhost("target") and UnitCanAttack("player", "target") and UnitIsTapDenied("target") then
 			tag:ClearAllPoints()
 			tag:SetPoint("CENTER", frame, "CENTER", tag.db.xOffset, tag.db.yOffset)
@@ -94,8 +85,6 @@ function UF:EnhanceUpdateRoleIcon()
 			end
 		end
 	end
-		
-	--UF:UpdateAllHeaders()
 end
 
 function UF:UpdateRoleIconFrame(frame)

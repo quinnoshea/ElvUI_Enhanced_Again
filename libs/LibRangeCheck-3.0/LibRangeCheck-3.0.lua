@@ -71,7 +71,19 @@ local tremove = tremove
 local tostring = tostring
 local setmetatable = setmetatable
 local BOOKTYPE_SPELL = BOOKTYPE_SPELL
-local GetSpellInfo = GetSpellInfo
+local LegacyGetSpellInfo = _G.GetSpellInfo
+local GetSpellInfo = function(spell)
+  if C_Spell and C_Spell.GetSpellInfo then
+    local info = C_Spell.GetSpellInfo(spell)
+    if info then
+      return info.name, nil, info.iconID, info.castTime, info.minRange, info.maxRange, info.spellID, info.originalIconID
+    end
+  end
+
+  if LegacyGetSpellInfo then
+    return LegacyGetSpellInfo(spell)
+  end
+end
 local GetSpellBookItemName = GetSpellBookItemName
 local GetNumSpellTabs = GetNumSpellTabs
 local GetSpellTabInfo = GetSpellTabInfo

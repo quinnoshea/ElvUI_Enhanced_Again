@@ -19,6 +19,7 @@ PRs to `main` run:
 - Lua syntax check
 - Retail API guard
 - PR title format validation
+- Markdown lint (`markdownlint-cli2`)
 
 PRs should only merge when all required checks pass.
 

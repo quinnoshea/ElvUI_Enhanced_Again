@@ -9,19 +9,6 @@ local EEL = E:NewModule("ElvuiEnhancedAgain", "AceHook-3.0", "AceEvent-3.0", "Ac
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
 local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 
--- Clear DB for testing>
-local testmode = false
-if testmode then
-	for profile, data in pairs(ElvDB.profiles) do
-		if data then
-			if data.eel then
-				data.eel = nil
-			end
-		end
-	end
-end
--- <Clear DB for testing
-
 EEL.version = GetAddOnMetadata("ElvUI_Enhanced", "Version")
 EEL.title = format('|cff00c0fa%s|r|cffff8000%s|r|cff00c0fa%s|r', "ElvUI ", "Enhanced ", "Again")
 EEL.config = {}

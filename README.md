@@ -1,4 +1,4 @@
-[![Package and release](https://github.com/quinnoshea/ElvUI_Enhanced_Again/actions/workflows/main.yml/badge.svg)](https://github.com/quinnoshea/ElvUI_Enhanced_Again/actions/workflows/main.yml)
+[![Package and release](https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again/actions/workflows/main.yml/badge.svg)](https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again/actions/workflows/main.yml)
 
 # ElvUI Enhanced (Yet) Again
 
@@ -6,7 +6,7 @@ A lightweight plugin for [ElvUI](http://www.tukui.org) that adds essential quali
 
 **Requires ElvUI version 12 or higher.**
 
-**Current Version:** 4.3.1
+**Current Version:** 4.3.3
 **Supported WoW Versions:** Retail (The War Within / Midnight), Wrath Classic
 
 ## Installation
@@ -55,12 +55,12 @@ Install via [CurseForge](https://www.curseforge.com/wow/addons/elvui-enhanced-ag
 
 ## Configuration
 
-All settings are located under the **ElvUI Enhanced Again** section in the ElvUI configuration panel (`/ec`). Features are disabled by default. The addon registers its own ElvUI mover group for positioning the Minimap Button Bar and Raid Marker Bar.
+All settings are located under the **ElvUI Enhanced (Yet) Again** section in the ElvUI configuration panel (`/ec`). Features are disabled by default. The addon registers its own ElvUI mover group for positioning the Minimap Button Bar and Raid Marker Bar.
 
 ## Contributing
 
-- Report bugs or request features: [GitHub Issues](https://github.com/quinnoshea/ElvUI_Enhanced_Again/issues)
-- Source code: [GitHub Repository](https://github.com/quinnoshea/ElvUI_Enhanced_Again)
+- Report bugs or request features: [GitHub Issues](https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again/issues)
+- Source code: [GitHub Repository](https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again)
 
 If you'd like an old v3 feature brought back, open an issue and it will be considered.
 

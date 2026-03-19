@@ -10,7 +10,7 @@ local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetad
 local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 
 EEL.version = GetAddOnMetadata("ElvUI_Enhanced", "Version")
-EEL.title = format('|cff00c0fa%s|r|cffff8000%s|r|cff00c0fa%s|r', "ElvUI ", "Enhanced ", "Again")
+EEL.title = format('|cff00c0fa%s|r|cffff8000%s|r|cff00c0fa%s|r', "ElvUI ", "Enhanced ", "(Yet) Again")
 EEL.config = {}
 EEL.elvV = tonumber(E.version)
 EEL.elvR = tonumber(GetAddOnMetadata("ElvUI_Enhanced", "X-ElvVersion"))
@@ -40,7 +40,7 @@ end
 
 function EEL:ConfigCat() 
 	tinsert(E.ConfigModeLayouts, #(E.ConfigModeLayouts)+1, "ELVUIEHANCED");
-	E.ConfigModeLocalizedStrings["ELVUIEHANCED"] = L["ElvUI Enhanced Again"]
+	E.ConfigModeLocalizedStrings["ELVUIEHANCED"] = L["ElvUI Enhanced (Yet) Again"]
 end
 
 function EEL:Initialize()

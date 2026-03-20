@@ -1,7 +1,7 @@
 ## Interface: 30403
 ## Title: |cff1784d1ElvUI|r Enhanced (Yet) Again Wrath
 ## Author: quinnoshea
-## Version: 4.3.3
+## Version: 4.3.4
 ## Notes: Plugin-Enhancements for |cff1784d1ElvUI|r.
 ## X-Category: Plugins
 ## URL: https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again

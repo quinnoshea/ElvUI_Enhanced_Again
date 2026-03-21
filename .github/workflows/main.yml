@@ -21,7 +21,7 @@ jobs:
         id: package
         run: |
           set -euo pipefail
-          ADDON_NAME="ElvUI_Enhanced_Again"
+          ADDON_NAME="ElvUI_Enhanced"
           VERSION="${GITHUB_REF_NAME}"
           DIST_DIR="dist"
           PKG_ROOT="${DIST_DIR}/${ADDON_NAME}"

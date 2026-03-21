@@ -1,7 +1,7 @@
 ## Interface: 120001
 ## Title: |cff1784d1ElvUI|r Enhanced (Yet) Again
 ## Author: quinnoshea
-## Version: 4.3.4
+## Version: 4.3.6
 ## Notes: Plugin-Enhancements for |cff1784d1ElvUI|r.
 ## X-Category: Plugins
 ## URL: https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again

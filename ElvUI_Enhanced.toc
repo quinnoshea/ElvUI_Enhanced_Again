@@ -1,11 +1,11 @@
 ## Interface: 120001
 ## Title: |cff1784d1ElvUI|r Enhanced (Yet) Again
-## Author: quinnoshea
+## Author: bloqaudio
 ## Version: 4.3.6
 ## Notes: Plugin-Enhancements for |cff1784d1ElvUI|r.
 ## X-Category: Plugins
-## URL: https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again
-## X-Website: https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again
+## URL: https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again
+## X-Website: https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again
 ## RequiredDeps: ElvUI
 ## DefaultState: Enabled
 ## X-ElvVersion: 13.54

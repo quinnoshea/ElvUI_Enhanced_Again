@@ -16,7 +16,7 @@ local function configOptions()
 			header1 = {
 				order = 1,
 				type = "header",
-				name = format(L["%s version |cffff8000%s|r by quinnoshea"], EEL.title, EEL.version),
+				name = format(L["%s version |cffff8000%s|r by bloqaudio"], EEL.title, EEL.version),
             }
         }
     }

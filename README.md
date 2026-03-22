@@ -1,4 +1,4 @@
-[![Package and release](https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again/actions/workflows/main.yml/badge.svg)](https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again/actions/workflows/main.yml)
+[![Package and release](https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again/actions/workflows/main.yml/badge.svg)](https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again/actions/workflows/main.yml)
 
 # ElvUI Enhanced (Yet) Again
 
@@ -59,8 +59,8 @@ All settings are located under the **ElvUI Enhanced (Yet) Again** section in the
 
 ## Contributing
 
-- Report bugs or request features: [GitHub Issues](https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again/issues)
-- Source code: [GitHub Repository](https://github.com/quinnoshea/ElvUI_Enhanced_Yet_Again)
+- Report bugs or request features: [GitHub Issues](https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again/issues)
+- Source code: [GitHub Repository](https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again)
 
 If you'd like an old v3 feature brought back, open an issue and it will be considered.
 

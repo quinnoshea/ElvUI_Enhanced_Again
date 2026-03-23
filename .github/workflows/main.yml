@@ -61,7 +61,7 @@ jobs:
           game_endpoint: wow
           file_path: ${{ steps.package.outputs.artifact }}
           display_name: ElvUI Enhanced (Yet) Again ${{ github.ref_name }}
-          game_versions: "12.0.0,12.0.1,12.0.5"
+          game_versions: "12.0.5"
           release_type: release
           changelog: "See release notes at https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again/releases/tag/${{ github.ref_name }}"
           changelog_type: text

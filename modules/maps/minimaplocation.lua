@@ -5,6 +5,7 @@ local ML = E:NewModule('MinimapLocation', 'AceHook-3.0', 'AceEvent-3.0', 'AceTim
 
 
 local init = false
+local baseHolderPoint, baseHolderRelativeTo, baseHolderRelativePoint, baseHolderX, baseHolderY, baseHolderHeight
 local cluster, panel, location, xMap, yMap
 local mmScale = E.db.general.minimap.scale
 
@@ -35,32 +36,24 @@ local function CreateEnhancedMaplocation()
 	cluster = _G['MinimapCluster']
 
 	panel = CreateFrame('Frame', 'EnhancedLocationPanel', _G['MinimapCluster'], 'BackdropTemplate')
+	panel:SetTemplate('Transparent')
 	panel:SetFrameStrata("BACKGROUND")
 	panel:Point("CENTER", M.MapHolder, "CENTER", 0, 0)
 	panel:Size(220, 22)
 
-	xMap = CreateFrame('Frame', "MapCoordinatesX", panel, 'BackdropTemplate')
-	xMap:SetTemplate('Transparent')
-	xMap:Point('LEFT', panel, 'LEFT', 0, 0)
-	xMap:Size(36 , 22 / mmScale)
+	xMap = CreateFrame('Frame', "MapCoordinatesX", panel)
 	
 	xMap.text = xMap:CreateFontString(nil, "OVERLAY")
 	xMap.text:FontTemplate(E.media.font, 12 / mmScale, "OUTLINE")
 	xMap.text:SetAllPoints(xMap)
 
-	location = CreateFrame('Frame', "EnhancedLocationText", panel, 'BackdropTemplate')
-	location:SetTemplate('Transparent')
-	location:Point('CENTER', panel, 'CENTER', 0, 0)
-	location:Size(150, 22 / mmScale)
+	location = CreateFrame('Frame', "EnhancedLocationText", panel)
 	
 	location.text = location:CreateFontString(nil, "OVERLAY")
 	location.text:FontTemplate(E.media.font, 12 / mmScale, "OUTLINE")
 	location.text:SetAllPoints(location)
 
-	yMap = CreateFrame('Frame', "MapCoordinatesY", panel, 'BackdropTemplate')
-	yMap:SetTemplate('Transparent')
-	yMap:Point('RIGHT', panel, 'RIGHT', 0, 0)
-	yMap:Size(36, 22 / mmScale)
+	yMap = CreateFrame('Frame', "MapCoordinatesY", panel)
 
 	yMap.text = yMap:CreateFontString(nil, "OVERLAY")
 	yMap.text:FontTemplate(E.media.font, 12 / mmScale, "OUTLINE")
@@ -100,6 +93,8 @@ function ML:CreateFrame()
 		init = true
 		CreateEnhancedMaplocation()
 	end
+
+	mmScale = E.db.general.minimap.scale
 	
 	if E.private.general.minimap.hideincombat then
 		M:RegisterEvent("PLAYER_REGEN_DISABLED", HideMinimap)	
@@ -111,19 +106,45 @@ function ML:CreateFrame()
 
 	--local holder = _G['MMHolder']
 	local holder = M.MapHolder
-	panel:SetParent(holder)
+	local minimap = _G.Minimap
+	local minimapEdge = minimap.backdrop or minimap
+
+	if not baseHolderPoint then
+		baseHolderPoint, baseHolderRelativeTo, baseHolderRelativePoint, baseHolderX, baseHolderY = holder:GetPoint()
+		baseHolderHeight = holder:GetHeight()
+	end
+
+	panel:SetParent(holder:GetParent() or cluster or E.UIParent)
 	panel:ClearAllPoints()
-	panel:SetPoint('TOPLEFT', holder, 'TOPLEFT', 0, 0)
-	panel:SetPoint('TOPRIGHT', holder, 'TOPRIGHT', 0, 0)
+	panel:SetPoint('BOTTOM', minimap, 'TOP', 0, 0)
+	panel:SetPoint('LEFT', minimapEdge, 'LEFT', 0, 0)
+	panel:SetPoint('RIGHT', minimapEdge, 'RIGHT', 0, 0)
 	panel:SetHeight(22 / mmScale)
 	panel:SetFrameStrata("MEDIUM")
 	panel:SetFrameLevel(50)
-	location:Width(holder:GetWidth() / mmScale - 70)
+	xMap:ClearAllPoints()
+	xMap:SetPoint('LEFT', panel, 'LEFT', 2 / mmScale, 0)
+	xMap:SetSize(40 / mmScale, 22 / mmScale)
+	xMap.text:FontTemplate(E.media.font, 12 / mmScale, "OUTLINE")
+	yMap:ClearAllPoints()
+	yMap:SetPoint('RIGHT', panel, 'RIGHT', -(2 / mmScale), 0)
+	yMap:SetSize(40 / mmScale, 22 / mmScale)
+	yMap.text:FontTemplate(E.media.font, 12 / mmScale, "OUTLINE")
+	location:ClearAllPoints()
+	location:SetPoint('TOPLEFT', xMap, 'TOPRIGHT', 0, 0)
+	location:SetPoint('BOTTOMRIGHT', yMap, 'BOTTOMLEFT', 0, 0)
+	location.text:FontTemplate(E.media.font, 12 / mmScale, "OUTLINE")
 
 	if E.db.general.minimap.locationText == 'ABOVE' then
+		holder:ClearAllPoints()
+		holder:SetPoint(baseHolderPoint, baseHolderRelativeTo, baseHolderRelativePoint, baseHolderX, baseHolderY - (22 / mmScale))
+		holder:SetHeight(baseHolderHeight + (22 / mmScale))
 		panel:SetScript('OnUpdate', UpdateLocation)
 		panel:Show()
 	else
+		holder:ClearAllPoints()
+		holder:SetPoint(baseHolderPoint, baseHolderRelativeTo, baseHolderRelativePoint, baseHolderX, baseHolderY)
+		holder:SetHeight(baseHolderHeight)
 		panel:SetScript('OnUpdate', nil)
 		panel:Hide()
 	end
@@ -131,6 +152,7 @@ function ML:CreateFrame()
 	-- Re-scan minimap buttons after toggle to maintain skinning
 	local MB = E:GetModule('MinimapButtons', true)
 	if MB and E.minimapbuttons then
+		MB:UpdateDefaultAnchor()
 		MB:ScheduleTimer("SkinMinimapButtons", 0.5)
 	end
 end

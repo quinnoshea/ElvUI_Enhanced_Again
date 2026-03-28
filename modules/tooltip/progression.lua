@@ -35,6 +35,9 @@ PT.tiers["LONG"] = {
 		"Nerub-ar Palace",
 		"Liberation of Undermine",
 		"Manaforge Omega",
+		"The Voidspire",
+		"The Dreamrift",
+		"March on Quel'Danas",
 }
 PT.tiers["SHORT"] = {
 		"ULD",
@@ -51,6 +54,9 @@ PT.tiers["SHORT"] = {
 		"NaP",
 		"LoU",
 		"MfO",
+		"VS",
+		"DR",
+		"MoQD",
 }
 
 PT.bosses = {
@@ -305,6 +311,57 @@ PT.bosses = {
 			},
 			{ -- LFR
 				41633, 41637, 41641, 41645, 41649, 41653, 41657, 41661
+			},
+		},
+	},
+	{ -- The Voidspire
+		["option"] = "voidspire",
+		["statIDs"] = {
+			{ -- Mythic
+				61279, 61283, 61287, 61291, 61295, 61299
+			},
+			{ -- Heroic
+				61278, 61282, 61286, 61290, 61294, 61298
+			},
+			{ -- Normal
+				61277, 61281, 61285, 61289, 61293, 61297
+			},
+			{ -- LFR
+				61276, 61280, 61284, 61288, 61292, 61296
+			},
+		},
+	},
+	{ -- The Dreamrift
+		["option"] = "dreamrift",
+		["statIDs"] = {
+			{ -- Mythic
+				61477
+			},
+			{ -- Heroic
+				61476
+			},
+			{ -- Normal
+				61475
+			},
+			{ -- LFR
+				61474
+			},
+		},
+	},
+	{ -- March on Quel'Danas
+		["option"] = "queldanas",
+		["statIDs"] = {
+			{ -- Mythic
+				61303, 61307
+			},
+			{ -- Heroic
+				61302, 61306
+			},
+			{ -- Normal
+				61301, 61305
+			},
+			{ -- LFR
+				61300, 61304
 			},
 		},
 	},

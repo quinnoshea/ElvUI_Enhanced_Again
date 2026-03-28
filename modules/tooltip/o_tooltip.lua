@@ -20,6 +20,9 @@ P["eel"]["progression"] = {
         ["nerubar"] = true,
         ["undermine"] = true,
         ["manaforge"] = true,
+        ["voidspire"] = true,
+        ["dreamrift"] = true,
+        ["queldanas"] = true,
     },
 }
 
@@ -124,6 +127,20 @@ local function ConfigTable()
                             nerubar = { order = -34, type = "toggle", name = "Nerub-ar Palace" },
                             undermine = { order = -33, type = "toggle", name = "Liberation of Undermine" },
                             manaforge = { order = -32, type = "toggle", name = "Manaforge Omega" },
+                        }
+                    },
+                    midnight = {
+                        order = 10,
+                        type = "group",
+                        name = "Midnight",
+                        guiInline = true,
+                        get = function(info) return E.db.eel.progression.raids[ info[#info] ] end,
+                        set = function(info, value) E.db.eel.progression.raids[ info[#info] ] = value end,
+                        disabled = function() return not E.db.eel.progression.enable end,
+                        args = {
+                            voidspire = { order = -31, type = "toggle", name = "The Voidspire" },
+                            dreamrift = { order = -30, type = "toggle", name = "The Dreamrift" },
+                            queldanas = { order = -29, type = "toggle", name = "March on Quel'Danas" },
                         }
                     }
                 },

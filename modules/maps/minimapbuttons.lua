@@ -1,5 +1,6 @@
 local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB, Localize Underscore
 local EEL = E:GetModule('ElvuiEnhancedAgain')
+local M = E:GetModule('Minimap')
 local MB = E:NewModule('MinimapButtons', 'AceHook-3.0', 'AceEvent-3.0', 'AceTimer-3.0');
 local LO = E:GetModule('Layout')
 local Skins = E:GetModule('Skins')
@@ -68,7 +69,19 @@ local whiteList = {
 local moveButtons = {}
 local minimapButtonBarAnchor, minimapButtonBar
 
+function MB:UpdateDefaultAnchor()
+	if not minimapButtonBarAnchor then return end
 
+	local holder = M.MapHolder or Minimap
+	local createdMover = E.CreatedMovers and E.CreatedMovers.MinimapButtonAnchor
+	if createdMover then
+		createdMover.originPoint = { 'TOP', holder, 'BOTTOM', 0, -5 }
+	end
+
+	if minimapButtonBarAnchor.mover and not E:HasMoverBeenMoved('MinimapButtonAnchor') then
+		E:SetMoverPoints('MinimapButtonAnchor', minimapButtonBarAnchor)
+	end
+end
 
 local function OnEnter(self)
 	if not E.minimapbuttons.db.mouseover or E.minimapbuttons.db.skinStyle == 'NOANCHOR' then return end
@@ -263,7 +276,9 @@ function MB:UpdateLayout()
 		return
 	else
 		MB:UnregisterEvent("PLAYER_REGEN_ENABLED")
- 	end
+	end
+
+	self:UpdateDefaultAnchor()
 
 	local AnchorX, AnchorY, MaxX = 0, 1, E.minimapbuttons.db.buttonsPerRow
 	local ButtonsPerRow = E.minimapbuttons.db.buttonsPerRow
@@ -288,7 +303,7 @@ function MB:UpdateLayout()
 	local lastFrame, anchor1, anchor2, offsetX, offsetY
 	
 	for i = 1, #moveButtons do
-		local frame =	_G[moveButtons[i]]
+		local frame = _G[moveButtons[i]]
 		AnchorX = AnchorX + 1
 		ActualButtons = ActualButtons + 1
 		if AnchorX > MaxX then
@@ -346,9 +361,7 @@ function MB:UpdateLayout()
 			end
 			frame:SetPoint(anchor1, minimapButtonBar, anchor1, offsetX, offsetY)
 			if Maxed then ActualButtons = ButtonsPerRow end
-
 		end
-
 	end
 	
 	if E.minimapbuttons.db.skinStyle ~= 'NOANCHOR' and #moveButtons > 0 then
@@ -437,6 +450,7 @@ function MB:CreateFrames()
 	minimapButtonBarAnchor:SetFrameStrata("BACKGROUND")
 
 	E:CreateMover(minimapButtonBarAnchor, "MinimapButtonAnchor", L["Minimap Button Bar"], nil, nil, nil, "ALL,ACTIONBARS,ELVUIEHANCED")
+	self:UpdateDefaultAnchor()
 
 	minimapButtonBar = CreateFrame("Frame", "MinimapButtonBar", E.UIParent, 'BackdropTemplate')
 	minimapButtonBar:SetFrameStrata('MEDIUM')

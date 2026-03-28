@@ -1,0 +1,48 @@
+name: Version Bump on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bump version and tag
+        run: |
+          set -euo pipefail
+
+          # Read current version from retail TOC
+          CURRENT=$(grep -oP '## Version: \K.*' ElvUI_Enhanced.toc)
+          echo "Current version: ${CURRENT}"
+
+          # Bump patch number
+          MAJOR=$(echo "${CURRENT}" | cut -d. -f1)
+          MINOR=$(echo "${CURRENT}" | cut -d. -f2)
+          PATCH=$(echo "${CURRENT}" | cut -d. -f3)
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          echo "New version: ${NEW_VERSION}"
+
+          # Update both TOC files
+          sed -i "s/## Version: ${CURRENT}/## Version: ${NEW_VERSION}/" ElvUI_Enhanced.toc
+          sed -i "s/## Version: ${CURRENT}/## Version: ${NEW_VERSION}/" ElvUI_Enhanced_Wrath.toc
+
+          # Commit and tag
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ElvUI_Enhanced.toc ElvUI_Enhanced_Wrath.toc
+          git commit -m "chore: bump version to ${NEW_VERSION}"
+          git tag "v${NEW_VERSION}"
+          git push origin main
+          git push origin "v${NEW_VERSION}"

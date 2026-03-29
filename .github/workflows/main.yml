@@ -4,25 +4,39 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish, for example v4.3.9
+        required: true
+        type: string
 
 permissions:
   contents: write
 
+concurrency:
+  group: retail-release-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+      RELEASE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ env.RELEASE_REF }}
 
       - name: Build retail zip
         id: package
         run: |
           set -euo pipefail
           ADDON_NAME="ElvUI_Enhanced"
-          VERSION="${GITHUB_REF_NAME}"
+          VERSION="${RELEASE_TAG}"
           DIST_DIR="dist"
           PKG_ROOT="${DIST_DIR}/${ADDON_NAME}"
 
@@ -48,6 +62,7 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
           files: |
             ${{ steps.package.outputs.artifact }}
             ${{ steps.package.outputs.artifact }}.sha256
@@ -60,8 +75,8 @@ jobs:
           project_id: 1490221
           game_endpoint: wow
           file_path: ${{ steps.package.outputs.artifact }}
-          display_name: ElvUI Enhanced (Yet) Again ${{ github.ref_name }}
+          display_name: ElvUI Enhanced (Yet) Again ${{ env.RELEASE_TAG }}
           game_versions: "12.0.5"
           release_type: release
-          changelog: "See release notes at https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again/releases/tag/${{ github.ref_name }}"
+          changelog: "See release notes at https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again/releases/tag/${{ env.RELEASE_TAG }}"
           changelog_type: text

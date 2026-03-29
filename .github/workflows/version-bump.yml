@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: version-bump-main
+  cancel-in-progress: false
+
 jobs:
   bump:
     if: github.event.pull_request.merged == true
@@ -17,19 +21,25 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main
 
       - name: Bump version and tag
         run: |
           set -euo pipefail
 
+          git pull --ff-only origin main
+
           # Read current version from retail TOC
-          CURRENT=$(grep -oP '## Version: \K.*' ElvUI_Enhanced.toc)
+          CURRENT=$(sed -n 's/^## Version: //p' ElvUI_Enhanced.toc | tr -d '\r')
           echo "Current version: ${CURRENT}"
 
+          if ! [[ "${CURRENT}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Unexpected version format: ${CURRENT}" >&2
+            exit 1
+          fi
+
           # Bump patch number
-          MAJOR=$(echo "${CURRENT}" | cut -d. -f1)
-          MINOR=$(echo "${CURRENT}" | cut -d. -f2)
-          PATCH=$(echo "${CURRENT}" | cut -d. -f3)
+          IFS=. read -r MAJOR MINOR PATCH <<< "${CURRENT}"
           NEW_PATCH=$((PATCH + 1))
           NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
           echo "New version: ${NEW_VERSION}"

@@ -9,7 +9,7 @@
 ## RequiredDeps: ElvUI
 ## DefaultState: Enabled
 ## X-ElvVersion: 13.54
-## X-Wago-ID: WqKQpk6x
+## X-Wago-ID: 5NR8QJK3
 
 libs\load_libs.xml
 locales\load_locales.xml

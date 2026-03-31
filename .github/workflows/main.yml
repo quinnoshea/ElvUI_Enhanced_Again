@@ -24,6 +24,7 @@ jobs:
     env:
       RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
       RELEASE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+      WAGO_PROJECT_ID: 5NR8QJK3
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,6 +60,13 @@ jobs:
       - name: Generate checksum
         run: sha256sum "${{ steps.package.outputs.artifact }}" > "${{ steps.package.outputs.artifact }}.sha256"
 
+      - name: Resolve Wago retail patch
+        id: wago_patch
+        run: |
+          set -euo pipefail
+          PATCH=$(curl -fsSL https://addons.wago.io/api/data/game | jq -r '.live_patches.supported_retail_patches')
+          echo "patch=${PATCH}" >> "${GITHUB_OUTPUT}"
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -80,3 +88,27 @@ jobs:
           release_type: release
           changelog: "See release notes at https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again/releases/tag/${{ env.RELEASE_TAG }}"
           changelog_type: text
+
+      - name: Upload to Wago
+        env:
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${WAGO_API_TOKEN}" ]; then
+            echo "Missing WAGO_API_TOKEN secret" >&2
+            exit 1
+          fi
+
+          METADATA=$(jq -nc \
+            --arg label "${RELEASE_TAG}" \
+            --arg changelog "See release notes at https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again/releases/tag/${RELEASE_TAG}" \
+            --arg patch "${{ steps.wago_patch.outputs.patch }}" \
+            '{label:$label,stability:"stable",changelog:$changelog,supported_retail_patch:$patch}')
+
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${WAGO_API_TOKEN}" \
+            -H "accept: application/json" \
+            -F "metadata=${METADATA}" \
+            -F "file=@${{ steps.package.outputs.artifact }}" \
+            "https://addons.wago.io/api/projects/${WAGO_PROJECT_ID}/version"

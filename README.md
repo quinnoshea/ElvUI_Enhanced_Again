@@ -11,7 +11,7 @@ A lightweight plugin for [ElvUI](http://www.tukui.org) that adds essential quali
 
 ## Installation
 
-Install via [CurseForge](https://www.curseforge.com/wow/addons/elvui-enhanced-again) or [Wago](https://addons.wago.io/addons/elvui-enhanced-again), or clone this repository into your `Interface/AddOns` directory.
+Install via [CurseForge](https://www.curseforge.com/wow/addons/elvui-enhanced-yet-again) or [Wago](https://addons.wago.io/addons/elvui-enhanced-yet-again), or clone this repository into your `Interface/AddOns` directory.
 
 ## Features
 

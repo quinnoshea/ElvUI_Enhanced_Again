@@ -6,7 +6,7 @@ A lightweight plugin for [ElvUI](http://www.tukui.org) that adds essential quali
 
 **Requires ElvUI version 12 or higher.**
 
-**Current Version:** 4.3.3
+**Current Version:** 4.3.16
 **Supported WoW Versions:** Retail (The War Within / Midnight), Wrath Classic
 
 ## Installation

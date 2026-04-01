@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 concurrency:
   group: version-bump-main
@@ -44,7 +43,6 @@ jobs:
           NEW_PATCH=$((PATCH + 1))
           NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
           echo "New version: ${NEW_VERSION}"
-          echo "NEW_VERSION=${NEW_VERSION}" >> "${GITHUB_ENV}"
 
           # Update both TOC files
           sed -i "s/## Version: ${CURRENT}/## Version: ${NEW_VERSION}/" ElvUI_Enhanced.toc
@@ -58,8 +56,3 @@ jobs:
           git tag "v${NEW_VERSION}"
           git push origin main
           git push origin "v${NEW_VERSION}"
-
-      - name: Trigger retail release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run main.yml --ref main -f tag="v${NEW_VERSION}"

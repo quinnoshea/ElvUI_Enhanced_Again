@@ -60,6 +60,10 @@ jobs:
       - name: Generate checksum
         run: sha256sum "${{ steps.package.outputs.artifact }}" > "${{ steps.package.outputs.artifact }}.sha256"
 
+      - name: Resolve retail release metadata
+        id: retail_meta
+        run: ./.github/scripts/retail-release-metadata.sh
+
       - name: Resolve Wago retail patch
         id: wago_patch
         run: |
@@ -84,7 +88,7 @@ jobs:
           game_endpoint: wow
           file_path: ${{ steps.package.outputs.artifact }}
           display_name: ElvUI Enhanced (Yet) Again ${{ env.RELEASE_TAG }}
-          game_versions: "12.0.5"
+          game_versions: "${{ steps.retail_meta.outputs.retail_version }}"
           release_type: release
           changelog: "See release notes at https://github.com/bloqaudio/ElvUI_Enhanced_Yet_Again/releases/tag/${{ env.RELEASE_TAG }}"
           changelog_type: text

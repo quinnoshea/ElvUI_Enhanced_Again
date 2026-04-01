@@ -2,23 +2,19 @@
 set -euo pipefail
 
 TOC_FILE="${TOC_FILE:-ElvUI_Enhanced.toc}"
-VERSION_URL="${WOW_UI_VERSION_URL:-https://raw.githubusercontent.com/Gethe/wow-ui-source/live/version.txt}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ ! -f "${TOC_FILE}" ]]; then
   echo "TOC file not found: ${TOC_FILE}" >&2
   exit 1
 fi
 
-version_raw="$(curl -fsSL "${VERSION_URL}" | tr -d '\r\n')"
-if [[ ! "${version_raw}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)\.[0-9]+$ ]]; then
-  echo "Unexpected version format from ${VERSION_URL}: ${version_raw}" >&2
-  exit 1
-fi
-
-major="${BASH_REMATCH[1]}"
-minor="${BASH_REMATCH[2]}"
-patch="${BASH_REMATCH[3]}"
-new_interface="$(printf '%d%02d%02d' "${major}" "${minor}" "${patch}")"
+while IFS='=' read -r key value; do
+  case "${key}" in
+    version_raw) version_raw="${value}" ;;
+    interface) new_interface="${value}" ;;
+  esac
+done < <("${SCRIPT_DIR}/retail-release-metadata.sh")
 
 current_interface="$(awk -F': *' '/^## Interface:/{gsub(/\r/, "", $2); print $2; exit}' "${TOC_FILE}")"
 if [[ -z "${current_interface}" ]]; then

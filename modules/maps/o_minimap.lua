@@ -2,6 +2,17 @@ local E, L, V, P, G = unpack(ElvUI);
 local EEL = E:GetModule("ElvuiEnhancedAgain");
 local MB = E:GetModule("MinimapButtons");
 
+local function GetVaultLauncher()
+    return E:GetModule("VaultLauncher", true)
+end
+
+local function UpdateVaultLauncherVisibility()
+    local vaultLauncher = GetVaultLauncher()
+    if vaultLauncher then
+        vaultLauncher:UpdateVisibility()
+    end
+end
+
 P["eel"]["minimap"] = {
 	['minimapcords'] = {
         ['enable'] = false,
@@ -17,7 +28,13 @@ P["eel"]["minimap"] = {
         ['mbcalendar'] =  false,
         ['mbgarrison'] = false,
         ['buttonsPerRow'] = 5,
-    }
+    },
+    ['vaultlauncher'] = {
+        ['enable'] = false,
+        ['hide'] = true,
+        ['minimapPos'] = 220,
+        ['radius'] = 80,
+    },
 }
 
 local function setMinimapAbove()
@@ -181,6 +198,26 @@ local function ConfigTable()
                         }
                     }
                 }
+            },
+            quickaccess = {
+                order = 7,
+                type = "group",
+                name = L["Quick Access"],
+                guiInline = true,
+                args = {
+                    vaultlauncher = {
+                        order = 1,
+                        type = "toggle",
+                        name = L["Great Vault"],
+                        desc = L["Show a minimap button that opens the Great Vault."],
+                        get = function() return E.db.eel.minimap.vaultlauncher.enable end,
+                        set = function(_, value)
+                            E.db.eel.minimap.vaultlauncher.enable = value
+                            E.db.eel.minimap.vaultlauncher.hide = not value
+                            UpdateVaultLauncherVisibility()
+                        end,
+                    },
+                },
             }
         }
     }

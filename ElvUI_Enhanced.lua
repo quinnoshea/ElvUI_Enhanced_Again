@@ -32,6 +32,20 @@ local function GetOptions()
 	end
 end
 
+function EEL:OpenGreatVault()
+	if not E.Retail then return end
+
+	if not IsAddOnLoaded("Blizzard_WeeklyRewards") then
+		UIParentLoadAddOn("Blizzard_WeeklyRewards")
+	end
+
+	if WeeklyRewards_ShowUI then
+		WeeklyRewards_ShowUI()
+	elseif WeeklyRewardsFrame then
+		ShowUIPanel(WeeklyRewardsFrame)
+	end
+end
+
 --Showing warning message about too old versions of ElvUI
 if EEL.elvV < 12 or (EEL.elvV < EEL.elvR) then
 	E:Delay(2, function() E:StaticPopup_Show("VERSION_MISMATCH_EEL") end)
@@ -54,6 +68,13 @@ function EEL:Initialize()
 		end
 	end	
 	self.initialized = true
+
+	if E.Retail then
+		SLASH_ELVUIENHANCEDVAULT1 = "/vault"
+		SlashCmdList.ELVUIENHANCEDVAULT = function()
+			EEL:OpenGreatVault()
+		end
+	end
 
 	EP:RegisterPlugin(AddOnName, GetOptions)
 end

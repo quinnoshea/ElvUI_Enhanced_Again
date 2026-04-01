@@ -12,6 +12,23 @@ local LibDBIcon = LibStub('LibDBIcon-1.0')
 -- Updated for WOD/Legion/BFA/Classic/SL by Tevoll
 
 local sub, len, find = string.sub, string.len, string.find
+local strlower = string.lower
+
+local FILTERED_TEXTURE_FILEIDS = {
+	[130924] = true,
+	[136430] = true,
+	[136467] = true,
+	[136468] = true,
+	[136477] = true,
+}
+
+local FILTERED_TEXTURE_PATTERNS = {
+	"alphamask",
+	"background",
+	"border",
+	"highlight",
+	"interface/characterframe",
+}
 
 local ignoreButtons = {
 	"AsphyxiaUIMinimapHelpButton",
@@ -69,6 +86,159 @@ local whiteList = {
 local moveButtons = {}
 local minimapButtonBarAnchor, minimapButtonBar
 
+local function IsTextureObject(region)
+	return region and region.GetObjectType and region:GetObjectType() == "Texture"
+end
+
+local function HideTextureObject(texture)
+	if not IsTextureObject(texture) then return end
+
+	texture:SetTexture(nil)
+	texture:SetAlpha(0)
+	texture:Hide()
+end
+
+local function GetTextureAsset(region)
+	if not region then return nil end
+
+	local texture = region.GetTextureFileID and region:GetTextureFileID()
+	if texture then
+		return texture
+	end
+
+	texture = region:GetTexture()
+	if texture == nil then
+		return nil
+	end
+
+	return strlower(tostring(texture))
+end
+
+local function IsFilteredTexture(texture)
+	if type(texture) == "number" then
+		return FILTERED_TEXTURE_FILEIDS[texture] == true
+	elseif type(texture) == "string" then
+		for i = 1, #FILTERED_TEXTURE_PATTERNS do
+			if texture:find(FILTERED_TEXTURE_PATTERNS[i]) then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+local function HasRenderableTexture(texture)
+	return texture and texture ~= "" and tostring(texture) ~= "0" and not IsFilteredTexture(texture)
+end
+
+local function NormalizeButtonTexture(region, frame, replacementTexture)
+	region:ClearAllPoints()
+	region:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
+	region:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)
+	region:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	region:SetDrawLayer("ARTWORK")
+
+	if replacementTexture then
+		region:SetTexture(replacementTexture)
+	end
+
+	region.SetPoint = function() return end
+end
+
+local function GetReplacementTexture(name)
+	if name == "DBMMinimapButton" then
+		return "Interface\\Icons\\INV_Helmet_87"
+	elseif name == "SmartBuff_MiniMapButton" and C_Spell and C_Spell.GetSpellInfo then
+		local spellInfo = C_Spell.GetSpellInfo(12051)
+		return spellInfo and spellInfo.iconID or nil
+	end
+
+	return nil
+end
+
+local function HideButtonStateTextures(frame, name)
+	if name == "GarrisonLandingPageMinimapButton" or name == "ExpansionLandingPageMinimapButton" then
+		return
+	end
+
+	if frame.GetPushedTexture then
+		HideTextureObject(frame:GetPushedTexture())
+	end
+
+	if frame.GetDisabledTexture then
+		HideTextureObject(frame:GetDisabledTexture())
+	end
+
+	if frame.GetHighlightTexture then
+		HideTextureObject(frame:GetHighlightTexture())
+	end
+
+	if frame.GetCheckedTexture then
+		HideTextureObject(frame:GetCheckedTexture())
+	end
+end
+
+local function GetPrimaryButtonTexture(frame, name)
+	if name == "GameTimeFrame" and IsTextureObject(_G.GameTimeTexture) and HasRenderableTexture(GetTextureAsset(_G.GameTimeTexture)) then
+		return _G.GameTimeTexture
+	end
+
+	local candidates = {
+		frame.icon,
+		frame.Icon,
+		frame.iconTexture,
+		frame.IconTexture,
+		frame.texture,
+		frame.Texture,
+		name and _G[name .. "Icon"] or nil,
+	}
+
+	if frame.GetNormalTexture then
+		candidates[#candidates + 1] = frame:GetNormalTexture()
+	end
+
+	for i = 1, #candidates do
+		local texture = candidates[i]
+		if IsTextureObject(texture) and HasRenderableTexture(GetTextureAsset(texture)) then
+			return texture
+		end
+	end
+
+	return nil
+end
+
+local function HandleGameTimeRegion(region, frame)
+	if not IsTextureObject(region) then
+		return false
+	end
+
+	local regionName = region:GetName()
+	if not regionName then
+		return false
+	end
+
+	if regionName == "GameTimeCalendarInvitesGlow" then
+		HideTextureObject(region)
+		return true
+	elseif regionName == "GameTimeCalendarInvitesTexture" then
+		NormalizeButtonTexture(region, frame)
+		region:SetTexCoord(0.03125, 0.6484375, 0.03125, 0.8671875)
+		region:SetDrawLayer("ARTWORK", 1)
+		return true
+	elseif regionName == "GameTimeCalendarEventAlarmTexture" then
+		NormalizeButtonTexture(region, frame)
+		region:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+		return true
+	elseif regionName == "GameTimeTexture" then
+		NormalizeButtonTexture(region, frame)
+		region:SetTexCoord(0.0, 0.390625, 0.0, 0.78125)
+		return true
+	end
+
+	return false
+end
+
 function MB:UpdateDefaultAnchor()
 	if not minimapButtonBarAnchor then return end
 
@@ -105,6 +275,10 @@ function MB:SkinButton(frame)
 
 	local name = frame:GetName()
 	if not name then return end
+	local isTomTomButton = name:find("TomTom") ~= nil or name:find("TTMinimapButton") ~= nil
+	local replacementTexture = GetReplacementTexture(name)
+	HideButtonStateTextures(frame, name)
+	local primaryTexture = GetPrimaryButtonTexture(frame, name)
 
 	-- Check ignore lists first (applies to all buttons including whitelisted)
 	for i = 1, #ignoreButtons do
@@ -158,24 +332,27 @@ function MB:SkinButton(frame)
 			end
 		end
 		-- Reposition internal textures to fit within our button size
+		if primaryTexture then
+			NormalizeButtonTexture(primaryTexture, frame, replacementTexture)
+		end
+
 		for i = 1, frame:GetNumRegions() do
 			local region = select(i, frame:GetRegions())
-			if region and region:GetObjectType() == "Texture" then
-				local texture = region.GetTextureFileID and region:GetTextureFileID()
-				if not texture then
-					texture = strlower(tostring(region:GetTexture()))
-				end
+			if IsTextureObject(region) and region ~= primaryTexture then
+				if name == "GameTimeFrame" and HandleGameTimeRegion(region, frame) then
+					-- handled by calendar-specific minimap region logic
+				else
+				local texture = GetTextureAsset(region)
 				-- Hide border/background textures, reposition icon textures
-				if texture and type(texture) == "number" and (texture == 136477 or texture == 136430 or texture == 136467 or texture == 136468 or texture == 130924) then
+				if IsFilteredTexture(texture) then
 					region:SetTexture(nil)
-				elseif texture and type(texture) ~= "number" and (texture:find("Border") or texture:find("Background") or texture:find("AlphaMask") or texture:find("highlight") or texture:find("interface/characterframe")) then
-					region:SetTexture(nil)
-				elseif texture and texture ~= "" and tostring(texture) ~= "0" then
-					region:ClearAllPoints()
-					region:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
-					region:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)
-					region:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-					region:SetDrawLayer("ARTWORK")
+				elseif HasRenderableTexture(texture) then
+					if not primaryTexture or isTomTomButton then
+						NormalizeButtonTexture(region, frame, replacementTexture)
+					else
+						region:Show()
+					end
+				end
 				end
 			end
 		end
@@ -203,36 +380,32 @@ function MB:SkinButton(frame)
 		frame.original.DragEnd = frame:GetScript("OnDragStop")
 	end
 
+	if primaryTexture then
+		NormalizeButtonTexture(primaryTexture, frame, replacementTexture)
+	end
+
 	for i = 1, frame:GetNumRegions() do
 		local region = select(i, frame:GetRegions())
 
-		if (region:GetObjectType() == "Texture") then
-			local texture = region.GetTextureFileID and region:GetTextureFileID()
-			if not texture then
-				texture = strlower(tostring(region:GetTexture()))
-			end
-
-			if (texture and (type(texture) == "number" and (texture == 136477 or texture == 136430 or texture == 136467 or texture == 136468 or texture == 130924))) then
-				region:SetTexture(nil)
-			elseif (texture and (type(texture) ~= "number" and (texture:find("Border") or texture:find("Background") or texture:find("AlphaMask") or texture:find("highlight") or texture:find("interface/characterframe")))) then
-				region:SetTexture(nil)
+		if IsTextureObject(region) and region ~= primaryTexture then
+			if name == "GameTimeFrame" and HandleGameTimeRegion(region, frame) then
+				-- handled by calendar-specific minimap region logic
 			else
-				if name == "DBMMinimapButton" then frame:SetNormalTexture("Interface\\Icons\\INV_Helmet_87") end
-				if name == "SmartBuff_MiniMapButton" then
-					local spellInfo = C_Spell and C_Spell.GetSpellInfo and C_Spell.GetSpellInfo(12051)
-					if spellInfo then
-						frame:SetNormalTexture(spellInfo.iconID)
+				local texture = GetTextureAsset(region)
+
+				if IsFilteredTexture(texture) then
+					region:SetTexture(nil)
+				elseif HasRenderableTexture(texture) then
+					if name == "GRM_MinimapButton" and frame.GRM_MinimapButtonBorder then
+						frame.GRM_MinimapButtonBorder:Hide()
+					end
+
+					if not primaryTexture or isTomTomButton then
+						NormalizeButtonTexture(region, frame, replacementTexture)
+					else
+						region:Show()
 					end
 				end
-				if name == "GRM_MinimapButton" then frame.GRM_MinimapButtonBorder:Hide() end
-
-				region:ClearAllPoints()
-				region:Point("TOPLEFT", frame, "TOPLEFT", 2, -2)
-				region:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)
-				region:SetTexCoord( 0.1, 0.9, 0.1, 0.9 )
-				region:SetDrawLayer( "ARTWORK" )
-
-				region.SetPoint = function() return end
 			end
 		end
 	end
@@ -304,67 +477,69 @@ function MB:UpdateLayout()
 	
 	for i = 1, #moveButtons do
 		local frame = _G[moveButtons[i]]
-		AnchorX = AnchorX + 1
-		ActualButtons = ActualButtons + 1
-		if AnchorX > MaxX then
-			AnchorY = AnchorY + 1
-			AnchorX = 1
-			Maxed = true
-		end
-
-		if E.minimapbuttons.db.skinStyle == 'NOANCHOR' then
-			frame:SetParent(frame.original.Parent)
-			if frame.original.DragStart then
-				frame:SetScript("OnDragStart", frame.original.DragStart)
+		if frame and frame.original then
+			AnchorX = AnchorX + 1
+			ActualButtons = ActualButtons + 1
+			if AnchorX > MaxX then
+				AnchorY = AnchorY + 1
+				AnchorX = 1
+				Maxed = true
 			end
-			if frame.original.DragEnd then
-				frame:SetScript("OnDragStop", frame.original.DragEnd)
-			end
-			frame:ClearAllPoints()
-			frame:SetSize(frame.original.Width, frame.original.Height)
 
-			if frame.original.Point ~= nil then
-				frame:SetPoint(frame.original.Point, frame.original.relativeTo, frame.original.relativePoint, frame.original.xOfs, frame.original.yOfs)
+			if E.minimapbuttons.db.skinStyle == 'NOANCHOR' then
+				frame:SetParent(frame.original.Parent)
+				if frame.original.DragStart then
+					frame:SetScript("OnDragStart", frame.original.DragStart)
+				end
+				if frame.original.DragEnd then
+					frame:SetScript("OnDragStop", frame.original.DragEnd)
+				end
+				frame:ClearAllPoints()
+				frame:SetSize(frame.original.Width, frame.original.Height)
+
+				if frame.original.Point ~= nil then
+					frame:SetPoint(frame.original.Point, frame.original.relativeTo, frame.original.relativePoint, frame.original.xOfs, frame.original.yOfs)
+				else
+					frame:SetPoint("CENTER", Minimap, "CENTER", -80, -34)
+				end
+				frame:SetFrameStrata(frame.original.FrameStrata)
+				frame:SetFrameLevel(frame.original.FrameLevel)
+				frame:SetScale(frame.original.Scale)
+				frame:SetMovable(true)
 			else
-				frame:SetPoint("CENTER", Minimap, "CENTER", -80, -34)
-			end
-			frame:SetFrameStrata(frame.original.FrameStrata)
-			frame:SetFrameLevel(frame.original.FrameLevel)
-			frame:SetScale(frame.original.Scale)
-			frame:SetMovable(true)
-		else
-			frame:SetParent(minimapButtonBar)
-			frame:SetMovable(false)
-			frame:SetScript("OnDragStart", nil)
-			frame:SetScript("OnDragStop", nil)
+				frame:SetParent(minimapButtonBar)
+				frame:SetMovable(false)
+				frame:SetScript("OnDragStart", nil)
+				frame:SetScript("OnDragStop", nil)
 
-			frame:ClearAllPoints()
-			frame:SetFrameStrata("MEDIUM")
-			frame:SetFrameLevel(20)
-			frame:SetSize(Size, Size)
-			if frame.SetFixedFrameSize then
-				frame:SetFixedFrameSize(false)
-			end
-			frame:SetScale(1)
-			frame:SetIgnoreParentScale(false)
+				frame:ClearAllPoints()
+				frame:SetFrameStrata("MEDIUM")
+				frame:SetFrameLevel(20)
+				frame:SetSize(Size, Size)
+				if frame.SetFixedFrameSize then
+					frame:SetFixedFrameSize(false)
+				end
+				frame:SetScale(1)
+				frame:SetIgnoreParentScale(false)
 
-			if E.minimapbuttons.db.skinStyle == 'HORIZONTAL' then
-				anchor1 = direction and 'TOPLEFT' or 'TOPRIGHT'
-				anchor2 = direction and 'TOPRIGHT' or 'TOPLEFT'
-				offsetX = direction and (Spacing + ((Size + Spacing) * (AnchorX - 1))) or (- (Spacing + ((Size + Spacing) * (AnchorX - 1))))
-				offsetY = (- Spacing - ((Size + Spacing) * (AnchorY - 1)))
-			else
-				anchor1 = direction and 'BOTTOMRIGHT' or 'TOPRIGHT'
-				anchor2 = direction and 'TOPRIGHT' or 'BOTTOMRIGHT'
-				offsetX = (- ((Size + Spacing) * (AnchorY - 1)))
-				offsetY = direction and (Spacing + ((Size + Spacing) * (AnchorX - 1))) or (- (Spacing + ((Size + Spacing) * (AnchorX - 1))))
+				if E.minimapbuttons.db.skinStyle == 'HORIZONTAL' then
+					anchor1 = direction and 'TOPLEFT' or 'TOPRIGHT'
+					anchor2 = direction and 'TOPRIGHT' or 'TOPLEFT'
+					offsetX = direction and (Spacing + ((Size + Spacing) * (AnchorX - 1))) or (- (Spacing + ((Size + Spacing) * (AnchorX - 1))))
+					offsetY = (- Spacing - ((Size + Spacing) * (AnchorY - 1)))
+				else
+					anchor1 = direction and 'BOTTOMRIGHT' or 'TOPRIGHT'
+					anchor2 = direction and 'TOPRIGHT' or 'BOTTOMRIGHT'
+					offsetX = (- ((Size + Spacing) * (AnchorY - 1)))
+					offsetY = direction and (Spacing + ((Size + Spacing) * (AnchorX - 1))) or (- (Spacing + ((Size + Spacing) * (AnchorX - 1))))
+				end
+				frame:SetPoint(anchor1, minimapButtonBar, anchor1, offsetX, offsetY)
+				if Maxed then ActualButtons = ButtonsPerRow end
 			end
-			frame:SetPoint(anchor1, minimapButtonBar, anchor1, offsetX, offsetY)
-			if Maxed then ActualButtons = ButtonsPerRow end
 		end
 	end
 	
-	if E.minimapbuttons.db.skinStyle ~= 'NOANCHOR' and #moveButtons > 0 then
+	if E.minimapbuttons.db.skinStyle ~= 'NOANCHOR' and ActualButtons > 0 then
 		if E.minimapbuttons.db.skinStyle == "HORIZONTAL" then
 			local BarWidth = (Spacing + ((Size * (ActualButtons * Mult)) + ((Spacing * (ActualButtons - 1)) * Mult) + (Spacing * Mult)))
 			local BarHeight = (Spacing + ((Size * (AnchorY * Mult)) + ((Spacing * (AnchorY - 1)) * Mult) + (Spacing * Mult)))

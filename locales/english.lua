@@ -93,6 +93,9 @@ L['Layout Direction'] = true
 L['Normal is right to left or top to bottom, or select reversed to switch directions.'] = true
 L['Normal'] = true
 L['Reversed'] = true
+L["Quick Access"] = true
+L["Great Vault"] = true
+L["Show a minimap button that opens the Great Vault."] = true
 
 -- PvP Autorelease
 L['PvP Autorelease'] = true

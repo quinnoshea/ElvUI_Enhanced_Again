@@ -1,9 +1,17 @@
-name: Version Bump on PR Merge
+name: Manual Version Bump
 
 on:
-  pull_request:
-    types: [closed]
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      part:
+        description: Version segment to increment
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 permissions:
   contents: write
@@ -14,7 +22,6 @@ concurrency:
 
 jobs:
   bump:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,6 +35,7 @@ jobs:
           set -euo pipefail
 
           git pull --ff-only origin main
+          PART="${{ inputs.part }}"
 
           # Read current version from retail TOC
           CURRENT=$(sed -n 's/^## Version: //p' ElvUI_Enhanced.toc | tr -d '\r')
@@ -38,10 +46,29 @@ jobs:
             exit 1
           fi
 
-          # Bump patch number
+          # Bump the requested version segment
           IFS=. read -r MAJOR MINOR PATCH <<< "${CURRENT}"
-          NEW_PATCH=$((PATCH + 1))
-          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+
+          case "${PART}" in
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            *)
+              echo "Unsupported version part: ${PART}" >&2
+              exit 1
+              ;;
+          esac
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
           echo "New version: ${NEW_VERSION}"
 
           # Update both TOC files

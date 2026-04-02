@@ -28,6 +28,7 @@ local FILTERED_TEXTURE_PATTERNS = {
 	"border",
 	"highlight",
 	"interface/characterframe",
+	"white8x8",
 }
 
 local ignoreButtons = {
@@ -132,6 +133,25 @@ local function HasRenderableTexture(texture)
 	return texture and texture ~= "" and tostring(texture) ~= "0" and not IsFilteredTexture(texture)
 end
 
+local function IsSingleIconButtonName(name)
+	return name and (
+		name:find("TomTom") ~= nil
+		or name:find("TTMinimapButton") ~= nil
+		or name:find("TomCats") ~= nil
+	)
+end
+
+local function ApplyCustomTextureLayout(region, frame, name)
+	if not IsTextureObject(region) then
+		return
+	end
+
+	if name == "TomCats-MinimapButton" then
+		region:SetTexCoord(0, 0.625, 0, 0.625)
+		region:SetDrawLayer("ARTWORK", 1)
+	end
+end
+
 local function NormalizeButtonTexture(region, frame, replacementTexture)
 	region:ClearAllPoints()
 	region:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
@@ -184,6 +204,14 @@ local function GetPrimaryButtonTexture(frame, name)
 		return _G.GameTimeTexture
 	end
 
+	if name == "TomCats-MinimapButton" then
+		local tomCatsIcon = _G[name .. "Icon"] or frame.Icon or frame.icon
+		if IsTextureObject(tomCatsIcon) then
+			return tomCatsIcon
+		end
+	end
+
+	local normalTexture = frame.GetNormalTexture and frame:GetNormalTexture() or nil
 	local candidates = {
 		frame.icon,
 		frame.Icon,
@@ -194,10 +222,6 @@ local function GetPrimaryButtonTexture(frame, name)
 		name and _G[name .. "Icon"] or nil,
 	}
 
-	if frame.GetNormalTexture then
-		candidates[#candidates + 1] = frame:GetNormalTexture()
-	end
-
 	for i = 1, #candidates do
 		local texture = candidates[i]
 		if IsTextureObject(texture) and HasRenderableTexture(GetTextureAsset(texture)) then
@@ -205,7 +229,137 @@ local function GetPrimaryButtonTexture(frame, name)
 		end
 	end
 
+	local bestRegion, bestScore
+	local function scoreRegion(region)
+		if not IsTextureObject(region) or region == normalTexture then
+			return nil
+		end
+
+		local texture = GetTextureAsset(region)
+		if not HasRenderableTexture(texture) then
+			return nil
+		end
+
+		local score = 0
+		local regionName = region:GetName()
+		if regionName then
+			regionName = strlower(regionName)
+			if regionName:find("icon") then
+				score = score + 100
+			elseif regionName:find("background") or regionName:find("border") then
+				score = score - 100
+			end
+		end
+
+		local layer = region.GetDrawLayer and region:GetDrawLayer()
+		if layer == "ARTWORK" then
+			score = score + 30
+		elseif layer == "OVERLAY" then
+			score = score + 20
+		elseif layer == "BACKGROUND" then
+			score = score - 20
+		end
+
+		local frameWidth, frameHeight = frame:GetSize()
+		local width, height = region:GetSize()
+		if frameWidth > 0 and frameHeight > 0 and width > 0 and height > 0 then
+			local widthRatio = width / frameWidth
+			local heightRatio = height / frameHeight
+			if widthRatio >= 0.3 and widthRatio <= 0.98 and heightRatio >= 0.3 and heightRatio <= 0.98 then
+				score = score + 40
+			elseif widthRatio < 0.2 or heightRatio < 0.2 then
+				score = score - 20
+			end
+		end
+
+		return score
+	end
+
+	for i = 1, frame:GetNumRegions() do
+		local region = select(i, frame:GetRegions())
+		local score = scoreRegion(region)
+		if score and (not bestRegion or score > bestScore) then
+			bestRegion = region
+			bestScore = score
+		end
+	end
+
+	if bestRegion and (IsSingleIconButtonName(name) or bestScore > 0) then
+		return bestRegion
+	end
+
+	if IsTextureObject(normalTexture) and HasRenderableTexture(GetTextureAsset(normalTexture)) then
+		return normalTexture
+	end
+
 	return nil
+end
+
+local function HideNonPrimaryNormalTexture(frame, name, primaryTexture)
+	if not frame or not frame.GetNormalTexture then
+		return
+	end
+
+	local normalTexture = frame:GetNormalTexture()
+	if not IsTextureObject(normalTexture) or normalTexture == primaryTexture then
+		return
+	end
+
+	local texture = GetTextureAsset(normalTexture)
+	if IsFilteredTexture(texture) or IsSingleIconButtonName(name) then
+		HideTextureObject(normalTexture)
+	end
+end
+
+local function HideSingleIconChildTextures(frame, primaryTexture, depth)
+	if not frame or depth > 2 then
+		return
+	end
+
+	for i = 1, frame:GetNumChildren() do
+		local child = select(i, frame:GetChildren())
+		if child and child ~= primaryTexture then
+			if IsTextureObject(child) then
+				HideTextureObject(child)
+			elseif child.GetNumRegions then
+				for j = 1, child:GetNumRegions() do
+					local region = select(j, child:GetRegions())
+					if IsTextureObject(region) and region ~= primaryTexture then
+						HideTextureObject(region)
+					end
+				end
+			end
+
+			if child.GetNumChildren then
+				HideSingleIconChildTextures(child, primaryTexture, depth + 1)
+			end
+		end
+	end
+end
+
+local function HideTomCatsButtonDecorations(frame, name)
+	if not name or name:find("TomCats") == nil then
+		return
+	end
+
+	local candidates = {
+		frame.Border,
+		frame.IconOverlay,
+		frame.CircleGlow,
+		frame.SoftButtonGlow,
+		frame.SideToastGlow,
+		frame.LoopingGlow,
+		_G[name .. "Border"],
+		_G[name .. "IconOverlay"],
+		_G[name .. "CircleGlow"],
+		_G[name .. "SoftButtonGlow"],
+		_G[name .. "SideToastGlow"],
+		_G[name .. "LoopingGlow"],
+	}
+
+	for i = 1, #candidates do
+		HideTextureObject(candidates[i])
+	end
 end
 
 local function HandleGameTimeRegion(region, frame)
@@ -275,10 +429,15 @@ function MB:SkinButton(frame)
 
 	local name = frame:GetName()
 	if not name then return end
-	local isTomTomButton = name:find("TomTom") ~= nil or name:find("TTMinimapButton") ~= nil
+	local isSingleIconButton = IsSingleIconButtonName(name)
 	local replacementTexture = GetReplacementTexture(name)
 	HideButtonStateTextures(frame, name)
 	local primaryTexture = GetPrimaryButtonTexture(frame, name)
+	HideNonPrimaryNormalTexture(frame, name, primaryTexture)
+	if isSingleIconButton and primaryTexture then
+		HideSingleIconChildTextures(frame, primaryTexture, 1)
+	end
+	HideTomCatsButtonDecorations(frame, name)
 
 	-- Check ignore lists first (applies to all buttons including whitelisted)
 	for i = 1, #ignoreButtons do
@@ -334,6 +493,7 @@ function MB:SkinButton(frame)
 		-- Reposition internal textures to fit within our button size
 		if primaryTexture then
 			NormalizeButtonTexture(primaryTexture, frame, replacementTexture)
+			ApplyCustomTextureLayout(primaryTexture, frame, name)
 		end
 
 		for i = 1, frame:GetNumRegions() do
@@ -347,7 +507,9 @@ function MB:SkinButton(frame)
 				if IsFilteredTexture(texture) then
 					region:SetTexture(nil)
 				elseif HasRenderableTexture(texture) then
-					if not primaryTexture or isTomTomButton then
+					if isSingleIconButton and primaryTexture then
+						HideTextureObject(region)
+					elseif not primaryTexture then
 						NormalizeButtonTexture(region, frame, replacementTexture)
 					else
 						region:Show()
@@ -382,6 +544,7 @@ function MB:SkinButton(frame)
 
 	if primaryTexture then
 		NormalizeButtonTexture(primaryTexture, frame, replacementTexture)
+		ApplyCustomTextureLayout(primaryTexture, frame, name)
 	end
 
 	for i = 1, frame:GetNumRegions() do
@@ -400,7 +563,9 @@ function MB:SkinButton(frame)
 						frame.GRM_MinimapButtonBorder:Hide()
 					end
 
-					if not primaryTexture or isTomTomButton then
+					if isSingleIconButton and primaryTexture then
+						HideTextureObject(region)
+					elseif not primaryTexture then
 						NormalizeButtonTexture(region, frame, replacementTexture)
 					else
 						region:Show()

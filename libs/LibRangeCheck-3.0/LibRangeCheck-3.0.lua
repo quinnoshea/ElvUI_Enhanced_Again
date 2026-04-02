@@ -71,6 +71,7 @@ local tremove = tremove
 local tostring = tostring
 local setmetatable = setmetatable
 local BOOKTYPE_SPELL = BOOKTYPE_SPELL
+local BOOKTYPE_PET = BOOKTYPE_PET
 local LegacyGetSpellInfo = _G.GetSpellInfo
 local GetSpellInfo = function(spell)
   if C_Spell and C_Spell.GetSpellInfo then
@@ -84,9 +85,59 @@ local GetSpellInfo = function(spell)
     return LegacyGetSpellInfo(spell)
   end
 end
-local GetSpellBookItemName = GetSpellBookItemName
-local GetNumSpellTabs = GetNumSpellTabs
-local GetSpellTabInfo = GetSpellTabInfo
+local SpellBookSpellBank = Enum and Enum.SpellBookSpellBank
+local function GetSpellBookBank(bookType)
+  if not SpellBookSpellBank then
+    return nil
+  end
+
+  if bookType == BOOKTYPE_PET then
+    return SpellBookSpellBank.Pet
+  end
+
+  return SpellBookSpellBank.Player
+end
+
+local LegacyGetSpellBookItemName = _G.GetSpellBookItemName
+local GetSpellBookItemName = function(index, bookType)
+  if C_SpellBook and C_SpellBook.GetSpellBookItemName then
+    local spellBookBank = GetSpellBookBank(bookType)
+    if spellBookBank then
+      return C_SpellBook.GetSpellBookItemName(index, spellBookBank)
+    end
+  end
+
+  if LegacyGetSpellBookItemName then
+    return LegacyGetSpellBookItemName(index, bookType)
+  end
+end
+
+local LegacyGetNumSpellTabs = _G.GetNumSpellTabs
+local GetNumSpellTabs = function()
+  if C_SpellBook and C_SpellBook.GetNumSpellBookSkillLines then
+    return C_SpellBook.GetNumSpellBookSkillLines()
+  end
+
+  if LegacyGetNumSpellTabs then
+    return LegacyGetNumSpellTabs()
+  end
+
+  return 0
+end
+
+local LegacyGetSpellTabInfo = _G.GetSpellTabInfo
+local GetSpellTabInfo = function(tabIndex)
+  if C_SpellBook and C_SpellBook.GetSpellBookSkillLineInfo then
+    local info = C_SpellBook.GetSpellBookSkillLineInfo(tabIndex)
+    if info then
+      return info.name, info.iconID, info.itemIndexOffset, info.numSpellBookItems, info.isGuild, info.offSpecID
+    end
+  end
+
+  if LegacyGetSpellTabInfo then
+    return LegacyGetSpellTabInfo(tabIndex)
+  end
+end
 local GetItemInfo = GetItemInfo
 local UnitCanAttack = UnitCanAttack
 local UnitCanAssist = UnitCanAssist
@@ -607,7 +658,16 @@ local function initItemRequests(cacheAll)
 end
 
 local function getNumSpells()
-  local _, _, offset, numSpells = GetSpellTabInfo(GetNumSpellTabs())
+  local numTabs = GetNumSpellTabs()
+  if not numTabs or numTabs == 0 then
+    return 0
+  end
+
+  local _, _, offset, numSpells = GetSpellTabInfo(numTabs)
+  if not offset or not numSpells then
+    return 0
+  end
+
   return offset + numSpells
 end
 

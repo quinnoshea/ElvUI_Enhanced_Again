@@ -70,8 +70,8 @@ local tinsert = tinsert
 local tremove = tremove
 local tostring = tostring
 local setmetatable = setmetatable
-local BOOKTYPE_SPELL = BOOKTYPE_SPELL
-local BOOKTYPE_PET = BOOKTYPE_PET
+local BOOKTYPE_SPELL = BOOKTYPE_SPELL or "spell"
+local BOOKTYPE_PET = BOOKTYPE_PET or "pet"
 local LegacyGetSpellInfo = _G.GetSpellInfo
 local GetSpellInfo = function(spell)
   if C_Spell and C_Spell.GetSpellInfo then
@@ -138,6 +138,26 @@ local GetSpellTabInfo = function(tabIndex)
     return LegacyGetSpellTabInfo(tabIndex)
   end
 end
+local LegacyIsSpellInRange = _G.IsSpellInRange
+local IsSpellInRange = function(spellIdx, bookType, unit)
+  if C_SpellBook and C_SpellBook.IsSpellBookItemInRange then
+    local spellBookBank = GetSpellBookBank(bookType)
+    if spellBookBank then
+      local inRange = C_SpellBook.IsSpellBookItemInRange(spellIdx, spellBookBank, unit)
+      if inRange == true then
+        return 1
+      elseif inRange == false then
+        return 0
+      end
+
+      return nil
+    end
+  end
+
+  if LegacyIsSpellInRange then
+    return LegacyIsSpellInRange(spellIdx, bookType, unit)
+  end
+end
 local GetItemInfo = GetItemInfo
 local UnitCanAttack = UnitCanAttack
 local UnitCanAssist = UnitCanAssist
@@ -146,7 +166,6 @@ local UnitIsUnit = UnitIsUnit
 local UnitGUID = UnitGUID
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local CheckInteractDistance = CheckInteractDistance
-local IsSpellInRange = IsSpellInRange
 local IsItemInRange = IsItemInRange
 local UnitClass = UnitClass
 local UnitRace = UnitRace

@@ -1,29 +1,38 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a bug in ElvUI Enhanced (Yet) Again
 
 ---
 
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+**Steps to reproduce**
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
-3. Move to instance ....
-4. Only when playing class X ....
-4. See error
+3. Reload/log in/enter combat/etc.
+4. See error or incorrect behavior
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Race / Class / Spec**
+Please list the character used when the issue happens.
 
-**Version (please complete the following information):**
- - Version ElvUI [e.g. 22]
- - Version Elvui_Enhanced [e.g. 4.0.0-beta1]
+**Game flavor / build**
+- Retail or Wrath
+- Patch/build if known
 
-**Additional context**
-Add any other context about the problem here.
+**Addon versions**
+- ElvUI version
+- ElvUI Enhanced (Yet) Again version
+
+**BugSack / BugGrabber output**
+Preferred, but not required. Please paste the full error text if you have it.
+
+**Other addons enabled**
+List any other addons that may be relevant. If you tested with only ElvUI, ElvUI Enhanced (Yet) Again, BugGrabber, and BugSack, please say so.
+
+**Screenshots / additional context**
+If applicable, add screenshots or anything else that may help explain the problem.

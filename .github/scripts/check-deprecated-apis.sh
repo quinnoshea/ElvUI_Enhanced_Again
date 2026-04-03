@@ -16,7 +16,7 @@ if command -v rg >/dev/null 2>&1; then
   }
 else
   search_cmd() {
-    grep -R -nE -- "$1" "${targets[@]}" 2>/dev/null || true
+    grep -R -H -nE -- "$1" "${targets[@]}" 2>/dev/null || true
   }
 fi
 

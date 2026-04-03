@@ -12,7 +12,7 @@ echo "Checking for known retail-incompatible API usage..."
 
 if command -v rg >/dev/null 2>&1; then
   search_cmd() {
-    rg -n "$1" "${targets[@]}" || true
+    rg -n -H "$1" "${targets[@]}" || true
   }
 else
   search_cmd() {
@@ -39,6 +39,7 @@ done
 mapfile -t spell_matches < <(search_cmd '\bGetSpellInfo\(')
 for match in "${spell_matches[@]}"; do
   file="${match%%:*}"
+  file="${file#./}"
   line_text="${match#*:*:}"
 
   if [[ "${line_text}" == *"C_Spell.GetSpellInfo("* ]]; then

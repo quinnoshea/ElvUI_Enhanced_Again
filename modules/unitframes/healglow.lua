@@ -88,16 +88,17 @@ function HG:SetupVariables()
 		frameBuffers[index] = {}
 		for i=1, (index/5) do
 			for j=1, 5 do
-				frame = (index == 5 and _G[("ElvUF_PartyGroup%dUnitButton%i"):format(i, j)] or index == 25 and _G[("ElvUF_RaidGroup%dUnitButton%i"):format(i, j)] or _G[("ElvUF_Raid%dGroup%dUnitButton%i"):format(index, i, j)])
+				local frame = (index == 5 and _G[("ElvUF_PartyGroup%dUnitButton%i"):format(i, j)] or index == 25 and _G[("ElvUF_RaidGroup%dUnitButton%i"):format(i, j)] or _G[("ElvUF_Raid%dGroup%dUnitButton%i"):format(index, i, j)])
 				if frame then
-					frame.HealGlow = UF:Construct_HealGlow(frame, ((index == 5 and 'party%d' or index == 25 and 'raid' or 'raid%d')):format(i))
+					frame.HealGlow = UF:Construct_HealGlow(frame)
 					tinsert(frameBuffers[index], frame)		
 				end
 			end
 		end
 	end
 
-	healGlowFrame = CreateFrame("Frame")
+	healGlowFrame = healGlowFrame or CreateFrame("Frame")
+	healGlowFrame:UnregisterAllEvents()
 	healGlowFrame:SetScript("OnEvent", function(self, event, ...)
 		if (event=="COMBAT_LOG_EVENT_UNFILTERED") then
 	  	local _, event, _, sourceGUID, _, _, _, destGUID, _, _, _, spellID, spellName = CombatLogGetCurrentEventInfo()
@@ -119,7 +120,9 @@ function HG:UpdateSettings()
 
 	for _, index in ipairs(frameGroups) do
 		for _, frame in ipairs(frameBuffers[index]) do
-			frame.HealGlow:SetBackdropBorderColor(color.r , color.g, color.b)
+			if frame.HealGlow then
+				frame.HealGlow:SetBackdropBorderColor(color.r , color.g, color.b)
+			end
 		end
 	end
 	
@@ -127,7 +130,7 @@ function HG:UpdateSettings()
 
 	if E.db.unitframe.healglow then
 		healGlowFrame:SetScript("OnUpdate", ShowHealGlows)
-		healGlowFrame:RegisterUnitEvent("COMBAT_LOG_EVENT_UNFILTERED", playerId)
+		healGlowFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	else
 		healGlowFrame:SetScript("OnUpdate", nil)
 		healGlowFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -144,11 +147,17 @@ function HG:GroupRosterUpdate()
     for index = 1, numMembers do
         unit = (groupName):format(index)
         if not UnitIsUnit(unit, "player") then
-            groupUnits[UnitGUID(unit)] = { unit, 0 }
+        	local guid = UnitGUID(unit)
+        	if guid then
+            	groupUnits[guid] = { unit, 0 }
+            end
         end
     end
     if groupName == "solo" then
-    	groupUnits[UnitGUID('player')] = { 'player', 0 }
+    	local guid = UnitGUID('player')
+    	if guid then
+    		groupUnits[guid] = { 'player', 0 }
+    	end
     end
 end
 

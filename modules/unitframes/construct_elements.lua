@@ -1,9 +1,13 @@
 local E, L, V, P, G = unpack(ElvUI); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB, Localize Underscore
 local UF = E:GetModule('UnitFrames')
-gpsRestricted = nil
+UF.gpsRestricted = false
 
 function UF:Construct_Unit_GPS(frame, unit)
 	if not frame then return end
+	if frame.gps then
+		frame.gps.unit = unit
+		return
+	end
 
 	local gps = CreateFrame("Frame", nil, frame, 'BackdropTemplate')
 	gps:SetTemplate("Transparent")
@@ -32,6 +36,10 @@ function UF:Construct_Unit_GPS(frame, unit)
 end
 
 function UF:Construct_HealGlow(frame)
+	if frame.HealGlow then
+		return frame.HealGlow
+	end
+
 	frame:CreateShadow()
 	local x = frame.shadow
 	frame.shadow = nil
@@ -112,7 +120,7 @@ function UF:ApplyUnitFrameEnhancements()
 end
 
 function UF:checkGpsRestriction()
-	gpsRestricted, _ = IsInInstance()
+	UF.gpsRestricted = select(1, IsInInstance()) or false
 	--UF:CreateAndUpdateUF("target")
 	--UF:CreateAndUpdateUF("focus")
 end

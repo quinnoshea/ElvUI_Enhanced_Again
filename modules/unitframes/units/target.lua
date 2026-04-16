@@ -9,7 +9,7 @@ hooksecurefunc(UF, "Update_TargetFrame", function(self, frame, db)
 	if not gps then return end
 
 	if db.gps.enable then
-		if gpsRestricted == true then
+		if UF.gpsRestricted then
 			if (gps.timer) then
 				UF:CancelTimer(gps.timer)
 				gps.timer = nil
@@ -24,6 +24,9 @@ hooksecurefunc(UF, "Update_TargetFrame", function(self, frame, db)
 		gps:SetFrameStrata("MEDIUM")
 		gps:Show()
 
+		if gps.timer then
+			UF:CancelTimer(gps.timer)
+		end
 		gps.timer = UF:ScheduleRepeatingTimer("UpdateGPS", 0.1, frame)
 	else
 		if (gps.timer) then

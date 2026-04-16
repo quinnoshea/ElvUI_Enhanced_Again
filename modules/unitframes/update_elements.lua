@@ -31,7 +31,7 @@ function UF:UpdateGPS(frame)
 		return
 	end
 
-	if gpsRestricted == true then
+	if UF.gpsRestricted then
 		if (gps.timer) then
 			UF:CancelTimer(gps.timer)
 			gps.timer = nil
@@ -41,7 +41,16 @@ function UF:UpdateGPS(frame)
 	end
 
 	-- Arbitrary method to determine if we should try to calculate the map position
-	local x, y = C_Map.GetPlayerMapPosition(C_Map.GetBestMapForUnit(gps.unit), gps.unit):GetXY()
+	local mapID = C_Map.GetBestMapForUnit(gps.unit)
+	local mapPosition = mapID and C_Map.GetPlayerMapPosition(mapID, gps.unit)
+	if not mapPosition then
+		gps.Text:SetText("-")
+		gps.Texture:Hide()
+		gps:Show()
+		return
+	end
+
+	local x, y = mapPosition:GetXY()
 
 	local distance, angle
 	if not (x == 0 and y == 0) then
